@@ -108,7 +108,7 @@ authentication, quotas or audit logging).
 | Page that fails to extract / has no text | Kept as an empty page, listed in the document's warnings |
 | Missing API key | UI falls back to the offline provider and says so; the evaluation runner refuses to run |
 | Rate limit, timeout, connection or server error | Bounded retries, then a plain-language error |
-| Authentication, quota, bad request, unknown model | No retry; specific message |
+| Authentication, quota or spend limit, bad request, unknown model | No retry; specific message |
 | Schema-invalid or truncated output | One retry, then an error; never displayed as an answer |
 | Model refusal | Reported as a refusal |
 | Any other exception | Generic message; exception type logged; no stack trace (also enforced by `client.showErrorDetails = "none"`) |

@@ -98,7 +98,7 @@ unless your organization allows it.
 |---|---|
 | "Offline demo mode" although you added a key | Check the variable name in `.env` (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`) and restart the app |
 | "rejected the API key" | The key is wrong or revoked |
-| "no remaining quota or billing is not set up" | Add billing/credits in the provider console |
+| "a spend limit, usage limit or the prepaid credit balance was reached" | Add credit or raise the spend limit in the provider console ([live evaluation guide](LIVE_EVALUATION_GUIDE.md)) |
 | "rate limit reached" | Wait a minute and retry; the app already retried a few times |
 | "reached its request limit" | Clear the session or raise `DOCINTEL_MAX_REQUESTS_PER_SESSION` |
 | "the response was cut off" | Ask a narrower question, or raise `DOCINTEL_MAX_OUTPUT_TOKENS` |

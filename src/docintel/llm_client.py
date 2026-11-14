@@ -277,6 +277,27 @@ def _retry_after_seconds(response: Any) -> float | None:
 
 # --------------------------------------------------------------------------- OpenAI
 
+# Error codes OpenAI returns when a billing control stops a request (HTTP 429 for spend limits).
+# Retrying cannot help, so they map to LLMQuotaError, which is never retried. Source:
+# https://developers.openai.com/api/docs/guides/spend-limits (checked 2026-11-14);
+# insufficient_quota is the older code for an exhausted balance.
+_OPENAI_BILLING_CODES = (
+    "insufficient_quota",
+    "credit_balance_exhausted",
+    "project_spend_limit_exceeded",
+    "organization_spend_limit_exceeded",
+    "organization_usage_limit_exceeded",
+)
+_OPENAI_BILLING_MESSAGE = (
+    "OpenAI stopped the request because a spend limit, usage limit or the prepaid credit "
+    "balance was reached. Check Limits and Billing in the OpenAI dashboard."
+)
+
+
+def _is_openai_billing_block(exc: Exception) -> bool:
+    detail = f"{getattr(exc, 'code', '') or ''} {getattr(exc, 'body', '') or exc}"
+    return any(code in detail for code in _OPENAI_BILLING_CODES)
+
 
 class OpenAIProvider(LLMProvider):
     """OpenAI Responses API with Structured Outputs (strict JSON schema via ``responses.parse``).
@@ -325,10 +346,8 @@ class OpenAIProvider(LLMProvider):
                 "Your OpenAI project is not permitted to use this model or endpoint."
             ) from None
         except openai.RateLimitError as exc:
-            if "insufficient_quota" in str(getattr(exc, "body", "") or exc):
-                raise LLMQuotaError(
-                    "The OpenAI account has no remaining quota or billing is not set up."
-                ) from None
+            if _is_openai_billing_block(exc):
+                raise LLMQuotaError(_OPENAI_BILLING_MESSAGE) from None
             raise LLMRateLimitError(
                 "OpenAI rate limit reached. Please wait a moment and retry.",
                 retry_after=_retry_after_seconds(getattr(exc, "response", None)),
@@ -356,6 +375,8 @@ class OpenAIProvider(LLMProvider):
         except openai.APIStatusError as exc:
             if getattr(exc, "status_code", 0) >= 500:
                 raise LLMServerError("OpenAI returned a server error. Please retry.") from None
+            if _is_openai_billing_block(exc):
+                raise LLMQuotaError(_OPENAI_BILLING_MESSAGE) from None
             raise LLMBadRequestError(f"OpenAI returned HTTP {exc.status_code}.") from None
         except (ValidationError, json.JSONDecodeError):
             raise LLMResponseFormatError(

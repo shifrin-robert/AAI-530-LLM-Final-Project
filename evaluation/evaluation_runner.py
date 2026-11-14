@@ -36,7 +36,15 @@ from docintel.comparison import compare_documents
 from docintel.config import FIXTURES_DIR, PROJECT_ROOT, Settings
 from docintel.extraction import extract_information
 from docintel.grounding import GroundingReport
-from docintel.llm_client import LLMError, LLMProvider, StructuredRequest, create_provider
+from docintel.llm_client import (
+    LLMAuthenticationError,
+    LLMConfigurationError,
+    LLMError,
+    LLMProvider,
+    LLMQuotaError,
+    StructuredRequest,
+    create_provider,
+)
 from docintel.model_catalog import estimate_cost_usd
 from docintel.models import JudgeVerdict
 from docintel.prompting import load_prompt
@@ -50,6 +58,12 @@ RESULTS_DIR = Path(__file__).resolve().parent / "results"
 # Conservative per-case token assumptions used only for the pre-run cost estimate.
 EST_INPUT_TOKENS_PER_CASE = 6_000
 EST_OUTPUT_TOKENS_PER_CASE = 1_500
+# Errors that would hit every remaining case (bad key, spend/credit limit, unknown model). The run
+# stops without writing results, so a partial run is never mistaken for a complete one.
+RUN_STOPPING_ERROR_KINDS = frozenset(
+    {LLMAuthenticationError.kind, LLMQuotaError.kind, LLMConfigurationError.kind}
+)
+EXIT_STOPPED = 3
 
 
 def load_cases(path: Path = CASES_PATH) -> dict:
@@ -327,11 +341,11 @@ def main(argv: list[str] | None = None) -> int:
     retriever = args.retriever or settings.retriever
 
     if args.provider != "mock":
-        est = estimate_cost_usd(
-            settings.resolved_model,
-            EST_INPUT_TOKENS_PER_CASE * len(cases) * args.repeats,
-            EST_OUTPUT_TOKENS_PER_CASE * len(cases) * args.repeats,
+        # Priced per case, not on the summed tokens: tiered prices apply per request.
+        per_case = estimate_cost_usd(
+            settings.resolved_model, EST_INPUT_TOKENS_PER_CASE, EST_OUTPUT_TOKENS_PER_CASE
         )
+        est = None if per_case is None else per_case * len(cases) * args.repeats
         est_text = f"${est:.4f}" if est is not None else "unknown (model not in priced catalog)"
         print(
             f"Planned: {len(cases)} cases x {args.repeats} repeat(s) on {settings.resolved_model}; "
@@ -347,7 +361,11 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 2
 
-    status = create_provider(settings)
+    try:
+        status = create_provider(settings)
+    except LLMError as exc:
+        print(f"Cannot start: {exc.user_message}", file=sys.stderr)
+        return 2
     provider = status.provider
     workspaces = WorkspaceCache(settings)
     results: list[dict] = []
@@ -367,6 +385,13 @@ def main(argv: list[str] | None = None) -> int:
                 "ERROR" if record.get("error") else ("PASS" if record["score"]["pass"] else "FAIL")
             )
             print(f"[{repeat + 1}/{args.repeats}] {case['id']:<7} {case['category']:<22} {mark}")
+            if (record.get("error") or "").split(":", 1)[0] in RUN_STOPPING_ERROR_KINDS:
+                print(
+                    f"\nStopped at {case['id']}: {record['error']}\nThis error affects every "
+                    "case, so the run was stopped and no results file was written.",
+                    file=sys.stderr,
+                )
+                return EXIT_STOPPED
 
     now = datetime.now(UTC)
     run_id = f"{now:%Y%m%dT%H%M%SZ}_{provider.provider_name}_{provider.model}_{args.prompt_version}".replace(

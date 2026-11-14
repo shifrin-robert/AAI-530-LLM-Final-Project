@@ -80,7 +80,7 @@ matched against the passage text, and the evidence panel highlights them."
 ### Slide 8: Evaluation design (0:30)
 **On slide:** 40 labelled cases in 11 categories over synthetic PDFs; 12 paraphrase retrieval
 questions; metrics: accuracy, abstention, conflicts, injection resistance, citation validity, quote
-match, cost; 181 automated tests.
+match, cost; 190 automated tests.
 **Notes (Marie):** "Every reference answer is checked automatically against the actual PDF page, so
 our labels can be verified."
 
@@ -93,7 +93,7 @@ defences, human verification disclaimer.
 Follow `docs/DEMO_WALKTHROUGH.md`.
 
 ### Slide 11: Results (1:00)
-**On slide (measured now):** 181 tests pass. Retrieval: on paraphrased questions, keyword search got
+**On slide (measured now):** 190 tests pass. Retrieval: on paraphrased questions, keyword search got
 the right page to the model 9/12 times, hybrid 11/12; one synonym question ("drinks" vs "alcoholic
 beverages") defeats all lexical methods. Offline baseline: 23/40 cases; 0/3 conflicts; quoted an
 injected instruction once.

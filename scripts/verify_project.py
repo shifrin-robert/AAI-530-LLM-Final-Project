@@ -41,6 +41,7 @@ REQUIRED_FILES = [
     "docs/DEMO_WALKTHROUGH.md",
     "docs/REQUIREMENTS_TRACEABILITY.md",
     "docs/TEAM_CONTRIBUTIONS.md",
+    "docs/LIVE_EVALUATION_GUIDE.md",
 ]
 SECRET_PATTERNS = [
     re.compile(r"sk-(?:proj-|ant-)?[A-Za-z0-9_\-]{24,}"),

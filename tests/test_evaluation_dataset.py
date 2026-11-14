@@ -12,6 +12,7 @@ from collections import Counter
 import pytest
 
 from docintel.config import FIXTURES_DIR, Settings
+from docintel.llm_client import LLMQuotaError, ProviderStatus, ScriptedProvider
 from docintel.pdf_processing import extract_document
 from evaluation import evaluation_runner, scoring
 from evaluation.build_fixtures import DOCUMENTS, build_text_pdf
@@ -194,3 +195,36 @@ def test_runner_refuses_paid_provider_without_explicit_permission(tmp_path, caps
     assert code == 2
     assert "--allow-paid" in capsys.readouterr().err
     assert not list(tmp_path.glob("*.json"))
+
+
+def test_runner_dry_run_prices_each_case_separately(tmp_path, capsys):
+    """Haiku 5.5 and gpt-6-luna share base prices; pricing all 40 cases as one request would
+    wrongly apply Haiku's 5x long-prompt tier."""
+    for provider in ("openai", "anthropic"):
+        assert evaluation_runner.main(["--provider", provider, "--out", str(tmp_path)]) == 2
+    out = capsys.readouterr().out.splitlines()
+    estimates = [line.split("estimate ")[1] for line in out if line.startswith("Planned")]
+    assert estimates == ["$0.0540.", "$0.0540."]
+
+
+def test_runner_reports_a_missing_key_without_starting(tmp_path, capsys):
+    code = evaluation_runner.main(
+        ["--provider", "openai", "--allow-paid", "--cases", "DF-01", "--out", str(tmp_path)]
+    )
+    assert code == 2
+    assert "Cannot start: OPENAI_API_KEY is not set" in capsys.readouterr().err
+    assert not list(tmp_path.iterdir())
+
+
+def test_runner_stops_on_a_spend_limit_without_writing_results(tmp_path, monkeypatch, capsys):
+    provider = ScriptedProvider([LLMQuotaError("Spend limit reached.")])
+    monkeypatch.setattr(
+        evaluation_runner, "create_provider", lambda settings: ProviderStatus(provider, "openai")
+    )
+    code = evaluation_runner.main(
+        ["--provider", "openai", "--allow-paid", "--cases", "DF-01,DF-02", "--out", str(tmp_path)]
+    )
+    assert code == evaluation_runner.EXIT_STOPPED
+    assert len(provider.requests) == 1  # DF-02 was never sent
+    assert "no results file was written" in capsys.readouterr().err
+    assert not list(tmp_path.iterdir())

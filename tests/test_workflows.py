@@ -11,8 +11,8 @@ from docintel.prompting import ConversationTurn
 from docintel.qa import answer_question
 from docintel.session import DocumentWorkspace
 from docintel.summarization import plan_summary, summarize_documents
-from docintel.workflow_utils import WorkflowError
-from tests.conftest import AMENDMENT, BRIGHTLINE, MEMO, MSA, RESEARCH, STATUS
+from docintel.workflow_utils import WorkflowError, estimate_plan
+from tests.conftest import AMENDMENT, BRIGHTLINE, MEMO, MSA, RESEARCH, STATUS, passage
 
 
 @pytest.fixture
@@ -223,6 +223,22 @@ def test_summary_plan_estimates_calls(workspace_with, settings, offline):
     )
     plan = plan_summary(ws, offline, None)
     assert plan.calls >= 3 and plan.estimated_cost_usd == 0.0  # map calls + reduce; offline is free
+
+
+def test_plan_cost_is_priced_per_call_not_on_summed_tokens():
+    # 12 calls of ~7k tokens: about 100k in total, but every request is far below Haiku 5.5's
+    # 100k-token long-prompt tier, so Haiku must cost the same as gpt-6-luna (same base prices).
+    sections = [[passage(f"S{i}", "word " * 4800)] for i in range(12)]
+    plans = {
+        model: estimate_plan(
+            sections, model=model, offline=False, max_sections=12, reduce_step=True
+        )
+        for model in ("gpt-6-luna", "claude-haiku-5-5")
+    }
+    assert plans["gpt-6-luna"].estimated_input_tokens > 100_000
+    assert plans["claude-haiku-5-5"].estimated_cost_usd == pytest.approx(
+        plans["gpt-6-luna"].estimated_cost_usd
+    )
 
 
 # ------------------------------------------------------------------ extraction and comparison

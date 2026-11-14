@@ -131,14 +131,22 @@ def estimate_plan(
     reduce_step: bool = False,
 ) -> CallPlan:
     used = list(sections)[:max_sections]
-    calls = len(used) + (1 if reduce_step and len(used) > 1 else 0)
-    input_tokens = sum(
+    call_inputs = [
         sum(estimate_tokens(p.text) + 30 for p in s) + prompt_overhead_tokens for s in used
-    )
+    ]
     if reduce_step and len(used) > 1:
-        input_tokens += prompt_overhead_tokens + output_tokens_per_call * len(used)
-    output_tokens = output_tokens_per_call * calls
-    cost = 0.0 if offline else estimate_cost_usd(model, input_tokens, output_tokens)
+        call_inputs.append(prompt_overhead_tokens + output_tokens_per_call * len(used))
+    calls = len(call_inputs)
+    cost: float | None = 0.0
+    if not offline:
+        # Price each call separately: tiered prices (e.g. above 100k prompt tokens) apply per
+        # request, so pricing the summed tokens as one request would overstate the cost.
+        per_call = [estimate_cost_usd(model, n, output_tokens_per_call) for n in call_inputs]
+        cost = None if None in per_call else sum(c for c in per_call if c is not None)
     return CallPlan(
-        calls, input_tokens, output_tokens, cost, truncated=len(sections) > max_sections
+        calls,
+        sum(call_inputs),
+        output_tokens_per_call * calls,
+        cost,
+        truncated=len(sections) > max_sections,
     )

@@ -127,7 +127,7 @@ synthetic documents. See the [user guide](docs/USER_GUIDE.md).
 python -m pytest
 ```
 
-All 181 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
+All 190 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
 are tested against the real SDKs with mocked HTTP; the UI is tested headlessly with Streamlit's
 AppTest.
 
@@ -148,7 +148,9 @@ python -m evaluation.retrieval_eval
 python -m evaluation.evaluation_runner --provider mock
 ```
 
-These two run offline and for free. Live runs need a key and explicit permission to spend:
+These two run offline and for free. Live runs need a key and explicit permission to spend.
+Set up the key and a hard spend limit with the
+[live evaluation guide](docs/LIVE_EVALUATION_GUIDE.md) first:
 
 ```bash
 python -m evaluation.evaluation_runner --provider openai --model gpt-6-luna --allow-paid --max-cost-usd 1
@@ -176,7 +178,7 @@ src/docintel/                Application package
   qa.py, summarization.py, extraction.py, comparison.py   Task workflows
   session.py, security.py, workflow_utils.py
 prompts/                     Versioned prompt templates (QA v1 and v2, summary, extraction, comparison)
-tests/                       181 automated tests (offline)
+tests/                       190 automated tests (offline)
 evaluation/                  Fixtures, labelled cases, runners, scoring, results
 scripts/                     Cost estimate and project audit
 docs/                        Documentation, appendix, evaluation, ethics, presentation materials
@@ -192,6 +194,7 @@ assets/screenshots/          Screenshots of the running app (offline demo mode)
 | [API selection report](docs/API_SELECTION_REPORT.md) | Providers, models, prices, data handling, decision |
 | [Prompt and testing appendix](docs/PROMPT_AND_TESTING_APPENDIX.md) | Prompts, versions, schemas, cases, outputs, iterations |
 | [Evaluation report](docs/EVALUATION_REPORT.md) | Method, measured results, pending runs |
+| [Live evaluation guide](docs/LIVE_EVALUATION_GUIDE.md) | API key, spend limits and staged live runs |
 | [AI use and ethical reflection](docs/AI_USE_AND_ETHICAL_REFLECTION.md) | AI tools, verification, risks |
 | [User guide](docs/USER_GUIDE.md) | How to use every feature |
 | [Presentation script](docs/PRESENTATION_SCRIPT.md), [demo walkthrough](docs/DEMO_WALKTHROUGH.md) | Recorded presentation materials |

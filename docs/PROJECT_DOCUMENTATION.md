@@ -15,7 +15,7 @@ every citation before showing highlighted evidence.
 
 The provisional model is OpenAI `gpt-6-luna` (about $0.15 per 100 typical requests), chosen after a
 documented comparison of OpenAI, Anthropic and Google models; Anthropic and Gemini adapters and an
-offline extractive provider are also implemented. The project includes 181 passing automated tests,
+offline extractive provider are also implemented. The project includes 190 passing automated tests,
 40 labelled evaluation cases over synthetic documents, a retrieval benchmark and an offline baseline
 evaluation. **Live LLM evaluation has not been run** because no API key or spending approval was
 available during development; the framework, commands and cost guards for it are in place.
@@ -154,7 +154,7 @@ are machine-checked against the fixture pages. Table: `docs/PROMPT_AND_TESTING_A
 
 ## 17. Actual results
 
-* **Automated tests:** `python -m pytest` -> 181 passed.
+* **Automated tests:** `python -m pytest` -> 190 passed.
 * **Retrieval (collection setting):** on paraphrased questions BM25 got the right page into the model's
   context for 9 of 12 questions; hybrid and character n-grams for 11 of 12. On exact-wording questions
   all methods reached 100%; BM25 ranked slightly better (MRR 0.933 vs 0.917 for hybrid).

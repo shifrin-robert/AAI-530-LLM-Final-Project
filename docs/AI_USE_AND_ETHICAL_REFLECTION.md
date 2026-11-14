@@ -27,7 +27,7 @@ authorization. The checks that were actually performed:
 
 | Check | What it caught |
 |---|---|
-| 181 automated tests, all executed (`python -m pytest`) | Logic errors in extraction, chunking, retrieval, prompts, citation checks, providers and UI flows |
+| 190 automated tests, all executed (`python -m pytest`) | Logic errors in extraction, chunking, retrieval, prompts, citation checks, providers and UI flows |
 | Dataset integrity tests: every reference fact must appear on its expected page of the real PDFs | Protects against AI-drafted reference answers that the documents do not support; caught a hyphenation bug |
 | Provider contract tests against the real SDKs with mocked HTTP | Caught an adapter importing a library the current SDK no longer uses (`httpx` vs `httpx2`) |
 | Retrieval benchmark and offline end-to-end evaluation | Measured retrieval choices; revealed a ranking regression from boilerplate removal |

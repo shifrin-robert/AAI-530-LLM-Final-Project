@@ -299,6 +299,32 @@ def test_openai_insufficient_quota_is_not_retried():
     assert calls["n"] == 1
 
 
+@pytest.mark.parametrize(
+    ("status", "code"),
+    [
+        (429, "project_spend_limit_exceeded"),
+        (429, "organization_spend_limit_exceeded"),
+        (429, "organization_usage_limit_exceeded"),
+        (429, "credit_balance_exhausted"),
+        (402, "credit_balance_exhausted"),
+    ],
+)
+def test_openai_spend_and_credit_limits_stop_without_retry(status, code):
+    """A hard spend limit or an empty balance is not a rate limit: one call, no retries."""
+    calls = {"n": 0}
+
+    def handler(req):
+        calls["n"] += 1
+        return httpx2.Response(
+            status, json={"error": {"message": "Limit reached", "type": "requests", "code": code}}
+        )
+
+    with pytest.raises(LLMQuotaError) as err:
+        openai_provider(handler).generate(request())
+    assert calls["n"] == 1
+    assert "spend limit" in err.value.user_message
+
+
 def test_openai_authentication_error_is_mapped():
     def handler(req):
         return httpx2.Response(
