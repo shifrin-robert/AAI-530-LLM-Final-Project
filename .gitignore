@@ -1,0 +1,39 @@
+# --- Secrets: never commit real credentials ---
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# --- Uploaded / private documents: never commit user documents ---
+# Only the synthetic evaluation fixtures are allowed in the repository.
+*.pdf
+!evaluation/fixtures/*.pdf
+uploads/
+private_documents/
+data/private/
+
+# --- Python / tooling ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Local evaluation scratch output (committed results live in evaluation/results/) ---
+evaluation/results/scratch/
+
+# --- OS / editors ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- Local tooling ---
+.claude/
+.playwright-mcp/

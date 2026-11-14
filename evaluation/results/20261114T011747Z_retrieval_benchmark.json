@@ -1,0 +1,1283 @@
+{
+  "timestamp": "2026-11-14T01:17:47+00:00",
+  "settings": {
+    "chunk_size": 1000,
+    "chunk_overlap": 150,
+    "top_k": 8,
+    "context_token_budget": 6000
+  },
+  "case_counts": {
+    "standard/scoped": 26,
+    "standard/collection": 26,
+    "paraphrase/scoped": 12,
+    "paraphrase/collection": 12
+  },
+  "results": {
+    "standard/scoped": {
+      "bm25": {
+        "hit@1": 0.885,
+        "hit@3": 0.962,
+        "hit@5": 1.0,
+        "mrr": 0.933,
+        "context_hit": 1.0
+      },
+      "char_ngram": {
+        "hit@1": 0.808,
+        "hit@3": 0.962,
+        "hit@5": 1.0,
+        "mrr": 0.894,
+        "context_hit": 1.0
+      },
+      "hybrid": {
+        "hit@1": 0.846,
+        "hit@3": 0.962,
+        "hit@5": 1.0,
+        "mrr": 0.913,
+        "context_hit": 1.0
+      }
+    },
+    "standard/collection": {
+      "bm25": {
+        "hit@1": 0.885,
+        "hit@3": 0.962,
+        "hit@5": 1.0,
+        "mrr": 0.933,
+        "context_hit": 1.0
+      },
+      "char_ngram": {
+        "hit@1": 0.808,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "mrr": 0.904,
+        "context_hit": 1.0
+      },
+      "hybrid": {
+        "hit@1": 0.846,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "mrr": 0.917,
+        "context_hit": 1.0
+      }
+    },
+    "paraphrase/scoped": {
+      "bm25": {
+        "hit@1": 0.5,
+        "hit@3": 0.667,
+        "hit@5": 0.75,
+        "mrr": 0.604,
+        "context_hit": 0.75
+      },
+      "char_ngram": {
+        "hit@1": 0.5,
+        "hit@3": 0.917,
+        "hit@5": 0.917,
+        "mrr": 0.681,
+        "context_hit": 0.917
+      },
+      "hybrid": {
+        "hit@1": 0.417,
+        "hit@3": 0.833,
+        "hit@5": 0.917,
+        "mrr": 0.632,
+        "context_hit": 0.917
+      }
+    },
+    "paraphrase/collection": {
+      "bm25": {
+        "hit@1": 0.333,
+        "hit@3": 0.583,
+        "hit@5": 0.75,
+        "mrr": 0.468,
+        "context_hit": 0.75
+      },
+      "char_ngram": {
+        "hit@1": 0.333,
+        "hit@3": 0.583,
+        "hit@5": 0.75,
+        "mrr": 0.508,
+        "context_hit": 0.917
+      },
+      "hybrid": {
+        "hit@1": 0.333,
+        "hit@3": 0.667,
+        "hit@5": 0.833,
+        "mrr": 0.508,
+        "context_hit": 0.917
+      }
+    }
+  },
+  "per_case": {
+    "standard/scoped": {
+      "bm25": [
+        {
+          "id": "DF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-06",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-07",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-08",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-04",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-02",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "MD-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MD-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "AMB-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        }
+      ],
+      "char_ngram": [
+        {
+          "id": "DF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-06",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-07",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-08",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-04",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-02",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "MD-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MD-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-03",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "INJ-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-03",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "AMB-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        }
+      ],
+      "hybrid": [
+        {
+          "id": "DF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-06",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-07",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-08",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-04",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-02",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "MD-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MD-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-03",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "INJ-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "AMB-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        }
+      ]
+    },
+    "standard/collection": {
+      "bm25": [
+        {
+          "id": "DF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-06",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-07",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-08",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-04",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-02",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "MD-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MD-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "AMB-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        }
+      ],
+      "char_ngram": [
+        {
+          "id": "DF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-06",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-07",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-08",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-03",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MP-04",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-02",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MD-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-03",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "INJ-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "AMB-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        }
+      ],
+      "hybrid": [
+        {
+          "id": "DF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-06",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-07",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "DF-08",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MP-04",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "MD-02",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "MD-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "MD-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "NUM-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "CF-03",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "INJ-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "INJ-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "AMB-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        }
+      ]
+    },
+    "paraphrase/scoped": {
+      "bm25": [
+        {
+          "id": "PARA-01",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-03",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-06",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "PARA-07",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-08",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-09",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-10",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-11",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-12",
+          "first_relevant_rank": 2,
+          "in_context": true
+        }
+      ],
+      "char_ngram": [
+        {
+          "id": "PARA-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-06",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-07",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-08",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-09",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-10",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-11",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-12",
+          "first_relevant_rank": 2,
+          "in_context": true
+        }
+      ],
+      "hybrid": [
+        {
+          "id": "PARA-01",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-06",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "PARA-07",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-08",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-09",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-10",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-11",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-12",
+          "first_relevant_rank": 2,
+          "in_context": true
+        }
+      ]
+    },
+    "paraphrase/collection": {
+      "bm25": [
+        {
+          "id": "PARA-01",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-03",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-06",
+          "first_relevant_rank": 5,
+          "in_context": true
+        },
+        {
+          "id": "PARA-07",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-08",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-09",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-10",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-11",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-12",
+          "first_relevant_rank": 4,
+          "in_context": true
+        }
+      ],
+      "char_ngram": [
+        {
+          "id": "PARA-01",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-03",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-05",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-06",
+          "first_relevant_rank": 5,
+          "in_context": true
+        },
+        {
+          "id": "PARA-07",
+          "first_relevant_rank": 7,
+          "in_context": true
+        },
+        {
+          "id": "PARA-08",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-09",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-10",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "PARA-11",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-12",
+          "first_relevant_rank": 6,
+          "in_context": true
+        }
+      ],
+      "hybrid": [
+        {
+          "id": "PARA-01",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-02",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-03",
+          "first_relevant_rank": 4,
+          "in_context": true
+        },
+        {
+          "id": "PARA-04",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-05",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-06",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-07",
+          "first_relevant_rank": 7,
+          "in_context": true
+        },
+        {
+          "id": "PARA-08",
+          "first_relevant_rank": null,
+          "in_context": false
+        },
+        {
+          "id": "PARA-09",
+          "first_relevant_rank": 2,
+          "in_context": true
+        },
+        {
+          "id": "PARA-10",
+          "first_relevant_rank": 3,
+          "in_context": true
+        },
+        {
+          "id": "PARA-11",
+          "first_relevant_rank": 1,
+          "in_context": true
+        },
+        {
+          "id": "PARA-12",
+          "first_relevant_rank": 5,
+          "in_context": true
+        }
+      ]
+    }
+  }
+}

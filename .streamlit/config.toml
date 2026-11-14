@@ -1,0 +1,31 @@
+[server]
+# Matches DOCINTEL_MAX_FILE_MB headroom; the application also validates size itself.
+maxUploadSize = 25
+enableXsrfProtection = true
+
+[browser]
+# Privacy: do not send usage statistics.
+gatherUsageStats = false
+
+[client]
+# Never show raw stack traces to users; the app shows its own friendly error messages.
+showErrorDetails = "none"
+toolbarMode = "viewer"
+
+[runner]
+magicEnabled = false
+
+[theme]
+base = "light"
+primaryColor = "#2457C5"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F5F9"
+textColor = "#1B2333"
+borderColor = "#DDE2EA"
+baseRadius = "medium"
+font = "sans-serif"
+headingFont = "serif"
+showSidebarBorder = true
+
+[theme.sidebar]
+backgroundColor = "#F6F7FB"
