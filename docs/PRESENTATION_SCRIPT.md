@@ -80,20 +80,20 @@ matched against the passage text, and the evidence panel highlights them."
 ### Slide 8: Evaluation design (0:30)
 **On slide:** 40 labelled cases in 11 categories over synthetic PDFs; 12 paraphrase retrieval
 questions; metrics: accuracy, abstention, conflicts, injection resistance, citation validity, quote
-match, cost; 190 automated tests.
+match, cost; 242 automated tests.
 **Notes (Marie):** "Every reference answer is checked automatically against the actual PDF page, so
 our labels can be verified."
 
 ### Slide 9: Responsible use (0:25)
-**On slide:** In-memory only, no logs of content, provider disclosure, `store=false`, injection
-defences, human verification disclaimer.
+**On slide:** Bring your own API key (per session, never shown or stored), in-memory only, no logs of
+content, provider disclosure, `store=false`, injection defences, human verification disclaimer.
 **Notes:** "The app supports a human reviewer; it does not replace one."
 
 ### Slide 10: Live demonstration (7:00)
 Follow `docs/DEMO_WALKTHROUGH.md`.
 
 ### Slide 11: Results (1:00)
-**On slide (measured now):** 190 tests pass. Retrieval: on paraphrased questions, keyword search got
+**On slide (measured now):** 242 tests pass. Retrieval: on paraphrased questions, keyword search got
 the right page to the model 9/12 times, hybrid 11/12; one synonym question ("drinks" vs "alcoholic
 beverages") defeats all lexical methods. Offline baseline: 23/40 cases; 0/3 conflicts; quoted an
 injected instruction once.

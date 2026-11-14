@@ -2,8 +2,10 @@
 
 Run with:  streamlit run app.py
 
-Every browser session gets its own DocumentWorkspace in st.session_state. Uploaded files are
-kept in memory only and are never placed in Streamlit's cross-session caches.
+Every browser session gets its own DocumentWorkspace and its own API-key store in
+st.session_state. Uploaded files and keys are kept in memory only and are never placed in
+Streamlit's cross-session caches, os.environ, logs or URLs. By default each user brings their own
+key; the server's keys are used only when DOCINTEL_KEY_MODE=owner (see docintel.credentials).
 """
 
 from __future__ import annotations
@@ -22,7 +24,15 @@ import streamlit as st  # noqa: E402
 
 from docintel import PRODUCT_NAME, __version__  # noqa: E402
 from docintel.comparison import compare_documents  # noqa: E402
-from docintel.config import FIXTURES_DIR, ConfigError, Settings, get_api_key  # noqa: E402
+from docintel.config import FIXTURES_DIR, ConfigError, Settings  # noqa: E402
+from docintel.credentials import (  # noqa: E402
+    HOSTED_PROVIDERS,
+    KEY_PAGES,
+    Credential,
+    KeyFormatError,
+    SessionKeyStore,
+    resolve_credential,
+)
 from docintel.extraction import CATEGORY_LABELS, extract_information, plan_extraction  # noqa: E402
 from docintel.grounding import CitationCheck, GroundingReport  # noqa: E402
 from docintel.llm_client import LLMError, LLMProvider, create_provider  # noqa: E402
@@ -236,10 +246,14 @@ def init_state() -> None:
         "page_cache": {},
         "pending_question": None,
         "turn_counter": 0,
+        "key_notice": None,
+        "key_check": None,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+    if "api_keys" not in st.session_state:
+        st.session_state.api_keys = SessionKeyStore()  # this session's keys, nowhere else
     if "base_settings" not in st.session_state:
         try:
             st.session_state.base_settings = Settings.from_env()
@@ -267,15 +281,26 @@ def clear_session() -> None:
     st.session_state.page_cache = {}
     st.session_state.processed_uploads = set()
     st.session_state.uploader_key += 1  # resets the file uploader widget
+    st.session_state.api_keys.clear()
+    st.session_state.providers = {}  # drops SDK clients that held a key
+    st.session_state.key_notice = None
 
 
-def get_provider(settings: Settings) -> tuple[LLMProvider, str | None]:
-    key = (settings.provider, settings.resolved_model, settings.reasoning_effort)
+def get_provider(settings: Settings) -> tuple[LLMProvider, str | None, Credential | None]:
+    """This session's model provider and the credential it uses.
+
+    The key comes from this session's own store, or from the server only in owner mode
+    (resolve_credential). Providers are cached per session and dropped whenever a key changes.
+    """
+    credential = resolve_credential(settings.provider, settings, st.session_state.api_keys)
+    source = credential.source if credential else None
+    key = (settings.provider, settings.resolved_model, settings.reasoning_effort, source)
     cache = st.session_state.providers
     if key not in cache:
-        status = create_provider(settings, allow_offline_fallback=True)
+        status = create_provider(settings, credential=credential, allow_offline_fallback=True)
         cache[key] = (status.provider, status.fallback_reason)
-    return cache[key]
+    provider, fallback_reason = cache[key]
+    return provider, fallback_reason, credential
 
 
 def load_samples() -> None:
@@ -287,6 +312,135 @@ def load_samples() -> None:
         if result.error:
             st.session_state.upload_messages.append(("error", result.error))
     st.session_state.upload_messages.append(("success", f"Loaded {added} sample document(s)."))
+
+
+# --------------------------------------------------------------------------- API keys
+
+KEY_INPUT_HELP = (
+    "Kept only in this browser session's memory on the server and used only for this provider. "
+    "It is never saved, logged or shown again, and it is deleted when you remove it, clear the "
+    "session or close the tab."
+)
+CHECK_KEY_HELP = (
+    "Sends one model-information request to confirm the key works and can use the selected "
+    "model. No text is generated, so it uses no tokens; it does count toward the provider's rate "
+    "limits."
+)
+
+
+def _set_key_notice(kind: str, text: str) -> None:
+    st.session_state.key_notice = (kind, text)
+
+
+def _save_key(provider_name: str) -> None:
+    """Form callback: move the typed key into this session's store and blank the input."""
+    field = f"key_input_{provider_name}"
+    label = PROVIDER_LABELS[provider_name]
+    try:
+        st.session_state.api_keys.set(provider_name, st.session_state.get(field))
+    except KeyFormatError as exc:
+        _set_key_notice("error", str(exc))
+    else:
+        st.session_state.providers = {}
+        _set_key_notice("success", f"Your {label} key is set for this session.")
+    st.session_state[field] = ""  # the raw key does not stay in widget state
+
+
+def _remove_key(provider_name: str) -> None:
+    st.session_state.api_keys.remove(provider_name)
+    st.session_state.providers = {}  # drops the SDK client that held the key
+    _set_key_notice("info", f"Your {PROVIDER_LABELS[provider_name]} key was removed.")
+
+
+def _request_key_check(provider_name: str) -> None:
+    st.session_state.key_check = provider_name
+
+
+def key_form(provider_name: str) -> None:
+    label = PROVIDER_LABELS[provider_name]
+    with st.form(f"key_form_{provider_name}", clear_on_submit=True, border=False):
+        st.text_input(
+            f"Your {label} API key",
+            type="password",
+            key=f"key_input_{provider_name}",
+            placeholder="Paste your key",
+            autocomplete="off",
+            help=KEY_INPUT_HELP,
+        )
+        st.form_submit_button(
+            "Use this key",
+            key=f"key_submit_{provider_name}",
+            on_click=_save_key,
+            args=(provider_name,),
+            icon=":material/key:",
+            width="stretch",
+        )
+    page = KEY_PAGES[provider_name]
+    st.caption(
+        f"Get a key at [{page.split('//')[1].split('/')[0]}]({page}). Usage is billed to the "
+        "account that owns the key."
+    )
+
+
+def api_key_panel(settings: Settings, provider: LLMProvider, credential: Credential | None) -> None:
+    """Key entry, check and removal for the selected hosted provider. Never displays a key."""
+    name = settings.provider
+    if name not in HOSTED_PROVIDERS:
+        return
+    label = PROVIDER_LABELS[name]
+    if st.session_state.key_check == name:
+        st.session_state.key_check = None
+        if not provider.is_offline:
+            with st.spinner(f"Checking the key with {label}…"):
+                try:
+                    provider.check_access()
+                except LLMError as exc:
+                    _set_key_notice("error", exc.user_message)
+                else:
+                    _set_key_notice(
+                        "success",
+                        f"{label} accepted the key, and `{provider.model}` is available to it. A "
+                        "working key can still fail later if the account runs out of credit or "
+                        "reaches a spend limit.",
+                    )
+    if credential is not None:
+        whose = "your" if credential.is_session_key else "the server's"
+        st.caption(
+            f":material/key: Using **{whose} {label} key**"
+            + (
+                " for this session only."
+                if credential.is_session_key
+                else " (owner mode). Usage is billed to the server owner's account."
+            )
+        )
+        left, right = st.columns(2)
+        left.button(
+            "Check key",
+            key=f"check_key_{name}",
+            icon=":material/verified:",
+            on_click=_request_key_check,
+            args=(name,),
+            help=CHECK_KEY_HELP,
+            width="stretch",
+        )
+        if credential.is_session_key:
+            right.button(
+                "Remove key",
+                key=f"remove_key_{name}",
+                icon=":material/key_off:",
+                on_click=_remove_key,
+                args=(name,),
+                width="stretch",
+            )
+        else:
+            with st.expander("Use your own key instead"):
+                key_form(name)
+    else:
+        key_form(name)
+    if st.session_state.key_notice:
+        kind, text = st.session_state.key_notice
+        {"error": st.error, "success": st.success, "info": st.info}[kind](text)
+        st.session_state.key_notice = None
 
 
 # --------------------------------------------------------------------------- sidebar
@@ -302,14 +456,15 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
             st.error(st.session_state.config_error)
 
         # ---- model
-        available = [p for p in ("openai", "anthropic", "gemini") if get_api_key(p)] + ["mock"]
-        preferred = base.provider if base.provider in available else available[0]
+        providers = [*HOSTED_PROVIDERS, "mock"]
+        preferred = base.provider if base.provider in providers else providers[0]
         provider_name = st.selectbox(
             "Model provider",
-            available,
-            index=available.index(preferred),
+            providers,
+            index=providers.index(preferred),
             format_func=lambda p: PROVIDER_LABELS[p],
-            help="Providers appear here when their API key is set in your .env file.",
+            help="Hosted models need your own API key from that provider, and usage is billed to "
+            "the key's account. Offline demo works without a key.",
         )
         model = DEFAULT_MODEL_BY_PROVIDER[provider_name]
         if provider_name != "mock":
@@ -326,6 +481,7 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
                     f"${get_model_info(m).output_per_mtok:g} per 1M tokens)"
                 ),
             )
+        key_area = st.container()  # filled once the session's credential is resolved
         with st.expander("Answer settings"):
             prompt_version = st.radio(
                 "Question-answering prompt",
@@ -353,21 +509,33 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
             top_k=top_k,
         )
         ws.settings = settings
-        provider, fallback_reason = get_provider(settings)
+        provider, fallback_reason, credential = get_provider(settings)
 
-        if provider.is_offline:
-            st.info(
-                "Offline demo mode: answers are sentences copied from your documents by a simple "
-                "keyword method, not written by an AI model."
-                + (f" ({fallback_reason})" if fallback_reason else "")
-                + (
-                    ""
-                    if len(available) > 1
-                    else " To use a hosted model, add an API key to your .env file "
-                    "(see .env.example) and restart."
-                ),
-                icon=":material/cloud_off:",
-            )
+        with key_area:
+            api_key_panel(settings, provider, credential)
+            if provider.is_offline:
+                if provider_name in HOSTED_PROVIDERS and credential is None:
+                    reason = (
+                        f" Enter your {PROVIDER_LABELS[provider_name]} API key above to use it."
+                    )
+                else:
+                    reason = f" ({fallback_reason})" if fallback_reason else ""
+                st.info(
+                    "Offline demo mode: answers are sentences copied from your documents by a "
+                    "simple keyword method, not written by an AI model." + reason,
+                    icon=":material/cloud_off:",
+                )
+            else:
+                info = get_model_info(provider.model)
+                st.caption(
+                    f":material/check_circle: Active model: {PROVIDER_LABELS[provider_name]} "
+                    f"{info.display_name if info else provider.model}."
+                )
+            if base.key_mode == "owner":
+                st.caption(
+                    ":material/admin_panel_settings: Owner mode: sessions without their own key "
+                    "use this server's API keys, billed to the server owner."
+                )
 
         st.divider()
         # ---- documents
@@ -439,7 +607,7 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
                 f"{stats['documents']} documents, {stats['pages']} pages, {stats['chunks']} searchable passages."
             )
             with st.popover("Clear session", icon=":material/restart_alt:", width="stretch"):
-                st.write("Remove all documents, answers and ratings from this session?")
+                st.write("Remove all documents, answers, ratings and API keys from this session?")
                 if st.button("Clear everything", type="primary"):
                     clear_session()
                     st.rerun()
@@ -456,7 +624,11 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
                     "OpenAI requests are sent with storage disabled (`store=false`).\n"
                     "- Do not upload confidential documents unless your organization allows them to be "
                     "processed by this provider.\n"
-                    "- Logs record events and counts only, never document text or questions."
+                    "- API keys you enter stay in this session's memory on the server, are used only "
+                    "for the provider you entered them for, and are never written to disk, logs, URLs "
+                    "or browser storage. They are deleted when you remove them, clear the session or "
+                    "close the tab. Usage is billed to the account that owns the key.\n"
+                    "- Logs record events and counts only, never document text, questions or keys."
                 )
             )
     return settings, provider, fallback_reason
@@ -1085,7 +1257,8 @@ def about_tab(settings: Settings, provider: LLMProvider) -> None:
     info = get_model_info(provider.model)
     st.markdown(
         md(
-            f"**Current model:** {PROVIDER_LABELS.get(settings.provider, settings.provider)} "
+            f"**Current model:** "
+            f"{PROVIDER_LABELS['mock' if provider.is_offline else settings.provider]} "
             f"`{provider.model}`"
             + (" (offline baseline, no API calls)" if provider.is_offline else "")
             + (

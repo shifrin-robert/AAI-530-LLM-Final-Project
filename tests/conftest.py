@@ -15,6 +15,26 @@ from docintel.models import DocumentRecord, PageText, SourcePassage
 from docintel.session import DocumentWorkspace
 
 API_KEY_VARS = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY")
+# Everything the installed provider SDKs read from the environment that affects where requests go,
+# which credentials or headers they carry, or what gets logged.
+PROVIDER_SDK_ENV_VARS = (
+    *API_KEY_VARS,
+    "OPENAI_ADMIN_KEY",
+    "OPENAI_ORG_ID",
+    "OPENAI_PROJECT_ID",
+    "OPENAI_BASE_URL",
+    "OPENAI_CUSTOM_HEADERS",
+    "OPENAI_LOG",
+    "ANTHROPIC_AUTH_TOKEN",
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_CUSTOM_HEADERS",
+    "ANTHROPIC_LOG",
+    "ANTHROPIC_PROFILE",
+    "ANTHROPIC_CONFIG_DIR",
+    "ANTHROPIC_OPEN_TELEMETRY_TRACES_CONTENT_MODE",
+    "GOOGLE_GENAI_USE_VERTEXAI",
+    "GOOGLE_GENAI_USE_ENTERPRISE",
+)
 
 
 @pytest.fixture(autouse=True)
@@ -22,14 +42,15 @@ def _no_real_api_keys(monkeypatch: pytest.MonkeyPatch) -> None:
     """Guarantee tests never pick up a developer's real API keys or settings.
 
     Removing the variables is not enough: ``Settings.from_env()`` (called by app.py in the UI
-    tests) loads ``.env`` and would put a real key back, so the UI tests would call a paid API.
-    Loading ``.env`` is therefore disabled, and ``DOCINTEL_*`` shell variables are removed.
+    tests) also reads ``.env``, and a real key there would let tests in owner mode call a paid
+    API. Reading ``.env`` is therefore disabled, and ``DOCINTEL_*`` and provider SDK variables
+    from the shell are removed.
     """
-    for var in API_KEY_VARS:
+    for var in PROVIDER_SDK_ENV_VARS:
         monkeypatch.delenv(var, raising=False)
     for var in [name for name in os.environ if name.startswith("DOCINTEL_")]:
         monkeypatch.delenv(var)
-    monkeypatch.setattr(config, "_load_dotenv", lambda: None)
+    monkeypatch.setattr(config, "_dotenv_values", dict)
 
 
 @pytest.fixture

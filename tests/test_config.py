@@ -3,22 +3,48 @@ import os
 import pytest
 
 from docintel import config
-from docintel.config import ConfigError, Settings, get_api_key
+from docintel.config import ConfigError, Settings, read_dotenv, server_api_key
 from docintel.model_catalog import CATALOG, DEFAULT_MODEL_BY_PROVIDER, get_model_info
+
+PLACEHOLDER = "placeholder-value-must-not-load"
 
 
 def test_test_suite_never_loads_a_real_env_file(tmp_path, monkeypatch):
     """A key in .env (needed for live evaluation) must never reach the offline test suite."""
     (tmp_path / ".env").write_text(
-        "OPENAI_API_KEY=placeholder-value-must-not-load\nDOCINTEL_TOP_K=3\n", encoding="utf-8"
+        f"OPENAI_API_KEY={PLACEHOLDER}\nDOCINTEL_TOP_K=3\n", encoding="utf-8"
     )
     monkeypatch.setattr(config, "PROJECT_ROOT", tmp_path)
     try:
         settings = Settings.from_env()
-        assert get_api_key("openai") is None
+        assert server_api_key("openai") is None
         assert settings.top_k == Settings().top_k
     finally:
         os.environ.pop("OPENAI_API_KEY", None)  # only reached if the conftest guard regresses
+
+
+def test_reading_dotenv_never_copies_values_into_the_process_environment(tmp_path):
+    """SDKs read os.environ on their own, so .env keys must never be copied there."""
+    env_file = tmp_path / ".env"
+    env_file.write_text(f"OPENAI_API_KEY={PLACEHOLDER}\nDOCINTEL_KEY_MODE=owner\n")
+    before = dict(os.environ)
+    assert read_dotenv(env_file) == {"OPENAI_API_KEY": PLACEHOLDER, "DOCINTEL_KEY_MODE": "owner"}
+    assert dict(os.environ) == before and PLACEHOLDER not in os.environ.values()
+
+
+def test_key_mode_defaults_to_byok_and_owner_mode_must_be_explicit():
+    assert Settings().key_mode == "byok"
+    assert Settings.from_env({}).key_mode == "byok"
+    assert Settings.from_env({"DOCINTEL_KEY_MODE": " Owner "}).key_mode == "owner"
+    with pytest.raises(ConfigError, match="DOCINTEL_KEY_MODE"):
+        Settings.from_env({"DOCINTEL_KEY_MODE": "shared"})
+
+
+def test_server_settings_prefer_real_environment_over_dotenv(monkeypatch):
+    monkeypatch.setattr(config, "_dotenv_values", lambda: {"DOCINTEL_TOP_K": "3"})
+    assert Settings.from_env().top_k == 3
+    monkeypatch.setenv("DOCINTEL_TOP_K", "5")
+    assert Settings.from_env().top_k == 5
 
 
 def test_defaults_are_valid():

@@ -95,22 +95,63 @@ On Windows, activate with `.venv\Scripts\activate`. Optional providers:
 `pip install -e ".[anthropic,gemini]"`. To reproduce the exact tested environment instead:
 `pip install -r requirements-lock.txt` followed by `pip install -e . --no-deps`.
 
-## Configuration and API keys
+## API keys: bring your own
+
+DocIntel does not come with an API key. Each user enters their own key in the app, and **all usage is
+billed to the account that owns the key**. Without a key, the app runs in offline demo mode.
+
+1. **Get a key** from one provider (only one is needed):
+
+   | Provider | Create a key at | Usage is billed to |
+   |---|---|---|
+   | OpenAI (default) | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | Your OpenAI organization |
+   | Anthropic | [platform.claude.com/settings/keys](https://platform.claude.com/settings/keys) | Your Claude Console organization |
+   | Google Gemini | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | The Google Cloud project linked to the key |
+
+   Set a spend limit before you start. The
+   [live evaluation guide](docs/LIVE_EVALUATION_GUIDE.md) shows how for OpenAI. Gemini's free tier
+   isn't billed, but Google may use free-tier inputs to improve its products, so use it only with
+   documents you are allowed to share.
+2. **Enter the key in the app.** Run the app, choose the provider and model in the sidebar, paste the
+   key into **Your ... API key** and select **Use this key**.
+3. **Check it (optional).** **Check key** sends one model-information request. It generates no text,
+   so it uses no tokens, but it counts toward the provider's rate limits.
+4. **Remove it** with **Remove key**, **Clear everything**, or by closing the tab.
+
+How keys are handled:
+
+* **Where the key lives:** only in your browser session's memory on the server, used only for the
+  provider you entered it for.
+* **Where it never goes:** disk, `.env`, logs, URLs, browser storage and evaluation results. Other
+  users of the same app can't see or use it, and the app never shows it again.
+* **What the sidebar shows:** the active provider and model and whose key is in use, never the key
+  itself.
+* **Server keys are ignored by default.** In the default mode (`DOCINTEL_KEY_MODE=byok`), the app
+  never uses keys found on the server, so a deployment can't spend the developer's credit by accident.
+* **Deployment requirements:** keys travel from the browser to the server, so a hosted deployment
+  must use HTTPS. Keys stay in server memory while the session is open, so use only a deployment
+  whose operator you trust.
+
+**Running it only for yourself (owner mode).** On your own computer you can skip pasting the key: put
+it in `.env` and turn on owner mode.
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and set the key for the provider you want (only one is needed):
-
 ```text
-DOCINTEL_PROVIDER=openai
+DOCINTEL_KEY_MODE=owner
 OPENAI_API_KEY=your-key-here
 ```
 
-`.env` is git-ignored; never commit keys. Without a key the app starts in offline demo mode. All
-settings (model, retries, timeouts, upload limits, chunking, retriever, prompt version) are documented
-in [.env.example](.env.example).
+In owner mode, every session without its own key uses this key, billed to you.
+* Use it only on your own computer, or for a private deployment whose users you have authorized to
+  spend on your account. Never use it for a shared or public deployment.
+* `.env` is git-ignored; never commit keys.
+* The command-line evaluation runner also reads keys from `.env`, and only calls a paid API with
+  `--allow-paid`.
+
+All other settings are documented in [.env.example](.env.example).
 
 ## Run the app
 
@@ -119,7 +160,8 @@ streamlit run app.py
 ```
 
 Then open http://localhost:8501 and click **Load sample documents** to try every feature with the
-synthetic documents. See the [user guide](docs/USER_GUIDE.md).
+synthetic documents. Without a key the answers come from offline demo mode; enter your key in the
+sidebar to use a hosted model. See the [user guide](docs/USER_GUIDE.md).
 
 ## Tests and checks
 
@@ -127,7 +169,7 @@ synthetic documents. See the [user guide](docs/USER_GUIDE.md).
 python -m pytest
 ```
 
-All 190 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
+All 242 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
 are tested against the real SDKs with mocked HTTP; the UI is tested headlessly with Streamlit's
 AppTest.
 
@@ -165,7 +207,8 @@ offline extractive baseline: 23 of 40 cases) and the pending live evaluation are
 ```text
 app.py                       Streamlit interface
 src/docintel/                Application package
-  config.py                  Settings from environment variables
+  config.py                  Settings from environment variables and .env
+  credentials.py             Bring your own key: per-session key store, key precedence
   model_catalog.py           Model IDs and verified prices
   models.py                  Data records and strict LLM output schemas
   pdf_processing.py          Validation, extraction, normalization, page rendering
@@ -178,7 +221,7 @@ src/docintel/                Application package
   qa.py, summarization.py, extraction.py, comparison.py   Task workflows
   session.py, security.py, workflow_utils.py
 prompts/                     Versioned prompt templates (QA v1 and v2, summary, extraction, comparison)
-tests/                       190 automated tests (offline)
+tests/                       242 automated tests (offline)
 evaluation/                  Fixtures, labelled cases, runners, scoring, results
 scripts/                     Cost estimate and project audit
 docs/                        Documentation, appendix, evaluation, ethics, presentation materials
@@ -195,6 +238,7 @@ assets/screenshots/          Screenshots of the running app (offline demo mode)
 | [Prompt and testing appendix](docs/PROMPT_AND_TESTING_APPENDIX.md) | Prompts, versions, schemas, cases, outputs, iterations |
 | [Evaluation report](docs/EVALUATION_REPORT.md) | Method, measured results, pending runs |
 | [Live evaluation guide](docs/LIVE_EVALUATION_GUIDE.md) | API key, spend limits and staged live runs |
+| [BYOK security review](docs/BYOK_SECURITY_REVIEW.md) | How API keys could leak, what prevents it, tests, limits |
 | [AI use and ethical reflection](docs/AI_USE_AND_ETHICAL_REFLECTION.md) | AI tools, verification, risks |
 | [User guide](docs/USER_GUIDE.md) | How to use every feature |
 | [Presentation script](docs/PRESENTATION_SCRIPT.md), [demo walkthrough](docs/DEMO_WALKTHROUGH.md) | Recorded presentation materials |
@@ -208,15 +252,19 @@ assets/screenshots/          Screenshots of the running app (offline demo mode)
 * No OCR for scanned pages; complex tables may extract imperfectly.
 * The citation support check is a heuristic, and the injection filter cannot catch every attack.
 * Small synthetic evaluation set; results will not transfer directly to long real documents.
-* A single-server prototype: no authentication or multi-tenant hardening.
+* A single-server prototype: no authentication or multi-tenant hardening. Per-session key isolation
+  is tested, but users' keys sit in the server's memory, so users must trust the operator.
 
 ## Security and privacy
 
 Uploaded files stay in the browser session's memory and are never written to disk, cached across
 sessions, logged or committed. With a hosted model, the question and the retrieved passages are sent
 to the provider shown in the sidebar (OpenAI requests use `store=false`). Do not upload confidential
-documents unless your organization allows that provider. Keys are read from `.env` only. Only
-synthetic sample documents are included in this repository.
+documents unless your organization allows that provider. API keys follow the bring-your-own-key
+rules above. The review of how keys could leak, and the tests that guard against it, are in
+[docs/BYOK_SECURITY_REVIEW.md](docs/BYOK_SECURITY_REVIEW.md). Shared caches, global objects, the process
+environment and SDK client construction are all covered. Only synthetic sample documents are
+included in this repository.
 
 ## AI-use disclosure
 

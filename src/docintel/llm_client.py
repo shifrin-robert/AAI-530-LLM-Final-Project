@@ -12,12 +12,19 @@ Every provider implements ``_call(request) -> (parsed_output, usage, raw_text)``
 Model identifiers come from configuration (``Settings.resolved_model``); no workflow module
 names a model. SDK clients are created with their own retries disabled so retry behaviour is
 explicit, testable and bounded in one place.
+
+Adapters never look up API keys themselves: the caller passes a :class:`Credential`. A key typed
+in a browser session gets a "sealed" SDK client. Its key and endpoint are passed explicitly, and
+settings the SDK copied from the server environment (organization and project IDs, admin keys,
+the Vertex AI switch) are cleared. If the server sets variables the SDK would still apply to
+every request (extra headers, debug logging, content telemetry), the key is refused instead.
 """
 
 from __future__ import annotations
 
 import json
 import random
+import re
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
@@ -26,12 +33,16 @@ from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
-from docintel.config import Settings, get_api_key
+from docintel.config import Settings
+from docintel.credentials import PROVIDER_NAMES, Credential, unsafe_sdk_environment
 from docintel.model_catalog import estimate_cost_usd
 from docintel.security import get_logger
 
 log = get_logger("llm")
 T = TypeVar("T", bound=BaseModel)
+
+OPENAI_API_BASE = "https://api.openai.com/v1"
+ANTHROPIC_API_BASE = "https://api.anthropic.com"
 
 
 # --------------------------------------------------------------------------- errors
@@ -186,19 +197,30 @@ class LLMProvider(ABC):
     def label(self) -> str:
         return f"{self.provider_name}:{self.model}"
 
+    def _count_request(self) -> None:
+        if self.requests_made >= self.settings.max_requests_per_session:
+            raise LLMBudgetExceededError(
+                "This session reached its request limit "
+                f"({self.settings.max_requests_per_session} model calls). Clear the session or "
+                "raise DOCINTEL_MAX_REQUESTS_PER_SESSION."
+            )
+        self.requests_made += 1
+
+    def check_access(self) -> None:
+        """Confirm the key works and can use this model, with one model-information request.
+
+        No text is generated, so no tokens are used; the request does count toward the
+        provider's rate limits and this session's request budget. Raises :class:`LLMError`.
+        """
+        raise LLMConfigurationError("This provider does not use an API key.")
+
     def generate(self, request: StructuredRequest) -> StructuredResult:
         attempts = 0
         format_retry_used = False
         started = time.perf_counter()
         while True:
-            if self.requests_made >= self.settings.max_requests_per_session:
-                raise LLMBudgetExceededError(
-                    "This session reached its request limit "
-                    f"({self.settings.max_requests_per_session} model calls). Clear the session or "
-                    "raise DOCINTEL_MAX_REQUESTS_PER_SESSION."
-                )
+            self._count_request()
             attempts += 1
-            self.requests_made += 1
             try:
                 output, usage, raw = self._call(request)
                 break
@@ -267,6 +289,28 @@ class LLMProvider(ABC):
         """Perform one API call and return (validated output, usage, raw text)."""
 
 
+def _require_credential(credential: Credential | None, provider: str) -> Credential:
+    """Adapters only use a key handed to them; they never fall back to the environment."""
+    name = PROVIDER_NAMES[provider]
+    if credential is None:
+        raise LLMConfigurationError(f"No {name} API key is available for this session.")
+    if credential.provider != provider:
+        raise LLMConfigurationError(f"That API key was entered for another provider, not {name}.")
+    if credential.is_session_key:
+        unsafe = unsafe_sdk_environment(provider)
+        if unsafe:
+            raise LLMConfigurationError(
+                f"This server sets {', '.join(unsafe)}, which the {name} SDK would apply to "
+                "requests made with your key, so keys entered in the browser can't be used here. "
+                "The operator must remove the setting; nothing was sent."
+            )
+    return credential
+
+
+def _rejected_key_message(name: str) -> str:
+    return f"{name} rejected the API key. It may be mistyped, revoked or expired."
+
+
 def _retry_after_seconds(response: Any) -> float | None:
     try:
         value = response.headers.get("retry-after") if response is not None else None
@@ -299,6 +343,24 @@ def _is_openai_billing_block(exc: Exception) -> bool:
     return any(code in detail for code in _OPENAI_BILLING_CODES)
 
 
+# Anthropic reports billing blocks as errors whose message mentions the credit balance or usage
+# limits (an HTTP 400 for an empty credit balance), not with dedicated codes. The phrases are a
+# heuristic: an unmatched billing error is still reported, as a rejected request.
+_ANTHROPIC_BILLING_PHRASES = ("credit balance", "usage limit", "spend limit")
+_ANTHROPIC_BILLING_MESSAGE = (
+    "Anthropic stopped the request because the account's credit balance is too low or a usage "
+    "limit was reached. Check Billing and Limits in the Claude Console."
+)
+
+
+def _is_anthropic_billing_block(exc: Exception) -> bool:
+    detail = f"{getattr(exc, 'body', '') or ''} {getattr(exc, 'message', '') or ''}".lower()
+    return any(phrase in detail for phrase in _ANTHROPIC_BILLING_PHRASES)
+
+
+_GEMINI_KEY_PROBLEM = re.compile(r"API_KEY_INVALID|API key not valid|API key expired", re.I)
+
+
 class OpenAIProvider(LLMProvider):
     """OpenAI Responses API with Structured Outputs (strict JSON schema via ``responses.parse``).
 
@@ -307,18 +369,84 @@ class OpenAIProvider(LLMProvider):
 
     provider_name = "openai"
 
-    def __init__(self, model: str, settings: Settings, *, client: Any | None = None, **kwargs: Any):
+    def __init__(
+        self,
+        model: str,
+        settings: Settings,
+        *,
+        credential: Credential | None = None,
+        client: Any | None = None,
+        http_client: Any | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(model, settings, **kwargs)
         if client is None:
-            key = get_api_key("openai")
-            if key is None:
-                raise LLMConfigurationError("OPENAI_API_KEY is not set. Add it to your .env file.")
+            credential = _require_credential(credential, "openai")
             import openai
 
+            sealed = credential.is_session_key
             client = openai.OpenAI(
-                api_key=key.get_secret_value(), timeout=settings.request_timeout_s, max_retries=0
+                api_key=credential.secret.get_secret_value(),
+                # A session key always goes to OpenAI itself, never to OPENAI_BASE_URL.
+                base_url=OPENAI_API_BASE if sealed else None,
+                timeout=settings.request_timeout_s,
+                max_retries=0,
+                http_client=http_client,
             )
+            if sealed:
+                # The SDK copies OPENAI_ORG_ID, OPENAI_PROJECT_ID and OPENAI_ADMIN_KEY from the
+                # server environment. They belong to the server operator, not this user.
+                client.organization = None
+                client.project = None
+                client.admin_api_key = None
         self.client = client
+
+    def check_access(self) -> None:
+        import openai
+
+        self._count_request()
+        try:
+            self.client.models.retrieve(self.model)
+        except openai.OpenAIError as exc:
+            raise self._translate_error(exc) from None
+
+    def _translate_error(self, exc: Exception) -> LLMError:
+        import openai
+
+        if isinstance(exc, openai.AuthenticationError):
+            return LLMAuthenticationError(_rejected_key_message("OpenAI"))
+        if isinstance(exc, openai.PermissionDeniedError):
+            return LLMAuthenticationError(
+                "Your OpenAI project is not permitted to use this model or endpoint."
+            )
+        if isinstance(exc, openai.RateLimitError):
+            if _is_openai_billing_block(exc):
+                return LLMQuotaError(_OPENAI_BILLING_MESSAGE)
+            return LLMRateLimitError(
+                "OpenAI rate limit reached. Please wait a moment and retry.",
+                retry_after=_retry_after_seconds(getattr(exc, "response", None)),
+            )
+        if isinstance(exc, openai.APITimeoutError):
+            return LLMTimeoutError("The OpenAI request timed out. Please retry.")
+        if isinstance(exc, openai.APIConnectionError):
+            return LLMConnectionError("Could not reach the OpenAI API. Check your network.")
+        if isinstance(exc, openai.NotFoundError):
+            return LLMConfigurationError(
+                f"Model '{self.model}' was not found or is not available to your OpenAI account."
+            )
+        if isinstance(exc, openai.BadRequestError):
+            log.warning("openai_bad_request code=%s", getattr(exc, "code", None))
+            return LLMBadRequestError(
+                "OpenAI rejected the request (HTTP 400). The selected model may not support one of "
+                "the configured options (e.g. temperature or reasoning effort)."
+            )
+        if isinstance(exc, openai.APIStatusError):
+            if getattr(exc, "status_code", 0) >= 500:
+                return LLMServerError("OpenAI returned a server error. Please retry.")
+            if _is_openai_billing_block(exc):
+                return LLMQuotaError(_OPENAI_BILLING_MESSAGE)
+            return LLMBadRequestError(f"OpenAI returned HTTP {exc.status_code}.")
+        return LLMError("The OpenAI request failed.")
 
     def _call(self, request: StructuredRequest) -> tuple[BaseModel, TokenUsage, str | None]:
         import openai
@@ -337,51 +465,16 @@ class OpenAIProvider(LLMProvider):
             kwargs["temperature"] = self.settings.temperature
         try:
             response = self.client.responses.parse(**kwargs)
-        except openai.AuthenticationError:
-            raise LLMAuthenticationError(
-                "OpenAI rejected the API key. Check OPENAI_API_KEY."
-            ) from None
-        except openai.PermissionDeniedError:
-            raise LLMAuthenticationError(
-                "Your OpenAI project is not permitted to use this model or endpoint."
-            ) from None
-        except openai.RateLimitError as exc:
-            if _is_openai_billing_block(exc):
-                raise LLMQuotaError(_OPENAI_BILLING_MESSAGE) from None
-            raise LLMRateLimitError(
-                "OpenAI rate limit reached. Please wait a moment and retry.",
-                retry_after=_retry_after_seconds(getattr(exc, "response", None)),
-            ) from None
-        except openai.APITimeoutError:
-            raise LLMTimeoutError("The OpenAI request timed out. Please retry.") from None
-        except openai.APIConnectionError:
-            raise LLMConnectionError(
-                "Could not reach the OpenAI API. Check your network."
-            ) from None
-        except openai.NotFoundError:
-            raise LLMConfigurationError(
-                f"Model '{self.model}' was not found or is not available to your OpenAI account."
-            ) from None
-        except openai.BadRequestError as exc:
-            log.warning("openai_bad_request code=%s", getattr(exc, "code", None))
-            raise LLMBadRequestError(
-                "OpenAI rejected the request (HTTP 400). The selected model may not support one of "
-                "the configured options (e.g. temperature or reasoning effort)."
-            ) from None
         except openai.LengthFinishReasonError:
             raise LLMResponseFormatError(
                 "The response was cut off before it was complete."
             ) from None
-        except openai.APIStatusError as exc:
-            if getattr(exc, "status_code", 0) >= 500:
-                raise LLMServerError("OpenAI returned a server error. Please retry.") from None
-            if _is_openai_billing_block(exc):
-                raise LLMQuotaError(_OPENAI_BILLING_MESSAGE) from None
-            raise LLMBadRequestError(f"OpenAI returned HTTP {exc.status_code}.") from None
         except (ValidationError, json.JSONDecodeError):
             raise LLMResponseFormatError(
                 "The model returned output that did not match the schema."
             ) from None
+        except openai.OpenAIError as exc:
+            raise self._translate_error(exc) from None
 
         if getattr(response, "status", None) == "incomplete":
             raise LLMResponseFormatError(
@@ -420,24 +513,75 @@ class AnthropicProvider(LLMProvider):
 
     provider_name = "anthropic"
 
-    def __init__(self, model: str, settings: Settings, *, client: Any | None = None, **kwargs: Any):
+    def __init__(
+        self,
+        model: str,
+        settings: Settings,
+        *,
+        credential: Credential | None = None,
+        client: Any | None = None,
+        http_client: Any | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(model, settings, **kwargs)
         if client is None:
-            key = get_api_key("anthropic")
-            if key is None:
-                raise LLMConfigurationError(
-                    "ANTHROPIC_API_KEY is not set. Add it to your .env file."
-                )
+            credential = _require_credential(credential, "anthropic")
             try:
                 import anthropic
             except ImportError:
                 raise LLMConfigurationError(
                     "The 'anthropic' package is not installed. Run: pip install -e '.[anthropic]'"
                 ) from None
+            # An explicit api_key stops the SDK from reading ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN
+            # or saved profiles; an explicit base_url keeps a session key away from
+            # ANTHROPIC_BASE_URL.
             client = anthropic.Anthropic(
-                api_key=key.get_secret_value(), timeout=settings.request_timeout_s, max_retries=0
+                api_key=credential.secret.get_secret_value(),
+                base_url=ANTHROPIC_API_BASE if credential.is_session_key else None,
+                timeout=settings.request_timeout_s,
+                max_retries=0,
+                http_client=http_client,
             )
         self.client = client
+
+    def check_access(self) -> None:
+        import anthropic
+
+        self._count_request()
+        try:
+            self.client.models.retrieve(self.model)
+        except anthropic.AnthropicError as exc:
+            raise self._translate_error(exc) from None
+
+    def _translate_error(self, exc: Exception) -> LLMError:
+        import anthropic
+
+        if isinstance(exc, anthropic.AuthenticationError):
+            return LLMAuthenticationError(_rejected_key_message("Anthropic"))
+        if isinstance(exc, anthropic.APIStatusError) and _is_anthropic_billing_block(exc):
+            return LLMQuotaError(_ANTHROPIC_BILLING_MESSAGE)
+        if isinstance(exc, anthropic.PermissionDeniedError):
+            return LLMAuthenticationError("Your Anthropic key is not permitted to use this model.")
+        if isinstance(exc, anthropic.RateLimitError):
+            return LLMRateLimitError(
+                "Anthropic rate limit reached. Please wait a moment and retry.",
+                retry_after=_retry_after_seconds(getattr(exc, "response", None)),
+            )
+        if isinstance(exc, anthropic.APITimeoutError):
+            return LLMTimeoutError("The Anthropic request timed out. Please retry.")
+        if isinstance(exc, anthropic.APIConnectionError):
+            return LLMConnectionError("Could not reach the Anthropic API. Check your network.")
+        if isinstance(exc, anthropic.NotFoundError):
+            return LLMConfigurationError(
+                f"Model '{self.model}' was not found or is not available to your Anthropic account."
+            )
+        if isinstance(exc, anthropic.BadRequestError):
+            return LLMBadRequestError("Anthropic rejected the request (HTTP 400).")
+        if isinstance(exc, anthropic.InternalServerError):  # includes 529 overloaded
+            return LLMServerError("Anthropic returned a server/overloaded error. Please retry.")
+        if isinstance(exc, anthropic.APIStatusError):
+            return LLMBadRequestError(f"Anthropic returned HTTP {exc.status_code}.")
+        return LLMError("The Anthropic request failed.")
 
     def _call(self, request: StructuredRequest) -> tuple[BaseModel, TokenUsage, str | None]:
         import anthropic
@@ -450,37 +594,8 @@ class AnthropicProvider(LLMProvider):
                 messages=[{"role": "user", "content": request.user}],
                 output_format=request.response_model,
             )
-        except anthropic.AuthenticationError:
-            raise LLMAuthenticationError(
-                "Anthropic rejected the API key. Check ANTHROPIC_API_KEY."
-            ) from None
-        except anthropic.PermissionDeniedError:
-            raise LLMAuthenticationError(
-                "Your Anthropic key is not permitted to use this model."
-            ) from None
-        except anthropic.RateLimitError as exc:
-            raise LLMRateLimitError(
-                "Anthropic rate limit reached. Please wait a moment and retry.",
-                retry_after=_retry_after_seconds(getattr(exc, "response", None)),
-            ) from None
-        except anthropic.APITimeoutError:
-            raise LLMTimeoutError("The Anthropic request timed out. Please retry.") from None
-        except anthropic.APIConnectionError:
-            raise LLMConnectionError(
-                "Could not reach the Anthropic API. Check your network."
-            ) from None
-        except anthropic.NotFoundError:
-            raise LLMConfigurationError(
-                f"Model '{self.model}' was not found on the Anthropic API."
-            ) from None
-        except anthropic.BadRequestError:
-            raise LLMBadRequestError("Anthropic rejected the request (HTTP 400).") from None
-        except anthropic.InternalServerError:  # includes 529 overloaded
-            raise LLMServerError(
-                "Anthropic returned a server/overloaded error. Please retry."
-            ) from None
-        except anthropic.APIStatusError as exc:
-            raise LLMBadRequestError(f"Anthropic returned HTTP {exc.status_code}.") from None
+        except anthropic.AnthropicError as exc:
+            raise self._translate_error(exc) from None
         except (ValidationError, json.JSONDecodeError, ValueError):
             raise LLMResponseFormatError(
                 "The model returned output that did not match the schema."
@@ -523,12 +638,19 @@ class GeminiProvider(LLMProvider):
 
     provider_name = "gemini"
 
-    def __init__(self, model: str, settings: Settings, *, client: Any | None = None, **kwargs: Any):
+    def __init__(
+        self,
+        model: str,
+        settings: Settings,
+        *,
+        credential: Credential | None = None,
+        client: Any | None = None,
+        http_client: Any | None = None,
+        **kwargs: Any,
+    ):
         super().__init__(model, settings, **kwargs)
         if client is None:
-            key = get_api_key("gemini")
-            if key is None:
-                raise LLMConfigurationError("GEMINI_API_KEY is not set. Add it to your .env file.")
+            credential = _require_credential(credential, "gemini")
             try:
                 from google import genai
                 from google.genai import types
@@ -536,11 +658,51 @@ class GeminiProvider(LLMProvider):
                 raise LLMConfigurationError(
                     "The 'google-genai' package is not installed. Run: pip install -e '.[gemini]'"
                 ) from None
+            options: dict[str, Any] = {"timeout": int(settings.request_timeout_s * 1000)}
+            if http_client is not None:
+                options["httpx_client"] = http_client
             client = genai.Client(
-                api_key=key.get_secret_value(),
-                http_options=types.HttpOptions(timeout=int(settings.request_timeout_s * 1000)),
+                api_key=credential.secret.get_secret_value(),
+                # An explicit False stops GOOGLE_GENAI_USE_VERTEXAI / _ENTERPRISE in the server
+                # environment from re-routing a session key to Vertex AI.
+                vertexai=False if credential.is_session_key else None,
+                http_options=types.HttpOptions(**options),
             )
         self.client = client
+
+    def check_access(self) -> None:
+        import httpx2
+        from google.genai import errors
+
+        self._count_request()
+        try:
+            self.client.models.get(model=self.model)
+        except (errors.APIError, httpx2.TransportError) as exc:
+            raise self._translate_error(exc) from None
+
+    def _translate_error(self, exc: Exception) -> LLMError:
+        import httpx2
+        from google.genai import errors
+
+        if isinstance(exc, errors.ClientError):
+            code = getattr(exc, "code", None)
+            # Gemini reports an invalid or expired key as HTTP 400 API_KEY_INVALID.
+            if code in (401, 403) or (code == 400 and _GEMINI_KEY_PROBLEM.search(str(exc))):
+                return LLMAuthenticationError(_rejected_key_message("Google Gemini"))
+            if code == 429:
+                return LLMRateLimitError("Gemini rate limit or quota reached. Please retry later.")
+            if code == 404:
+                return LLMConfigurationError(
+                    f"Model '{self.model}' was not found or is not available to your Gemini key."
+                )
+            return LLMBadRequestError(f"Gemini rejected the request (HTTP {code}).")
+        if isinstance(exc, errors.ServerError):
+            return LLMServerError("Gemini returned a server error. Please retry.")
+        if isinstance(exc, httpx2.TimeoutException):
+            return LLMTimeoutError("The Gemini request timed out. Please retry.")
+        if isinstance(exc, httpx2.TransportError):
+            return LLMConnectionError("Could not reach the Gemini API. Check your network.")
+        return LLMError("The Gemini request failed.")
 
     def _thinking_level(self) -> str | None:
         effort = (self.settings.reasoning_effort or "").lower()
@@ -571,29 +733,8 @@ class GeminiProvider(LLMProvider):
                 contents=request.user,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
-        except errors.ClientError as exc:
-            code = getattr(exc, "code", None)
-            if code == 429:
-                raise LLMRateLimitError(
-                    "Gemini rate limit or quota reached. Please retry later."
-                ) from None
-            if code in (401, 403):
-                raise LLMAuthenticationError(
-                    "Gemini rejected the API key. Check GEMINI_API_KEY."
-                ) from None
-            if code == 404:
-                raise LLMConfigurationError(
-                    f"Model '{self.model}' was not found on the Gemini API."
-                ) from None
-            raise LLMBadRequestError(f"Gemini rejected the request (HTTP {code}).") from None
-        except errors.ServerError:
-            raise LLMServerError("Gemini returned a server error. Please retry.") from None
-        except httpx2.TimeoutException:
-            raise LLMTimeoutError("The Gemini request timed out. Please retry.") from None
-        except httpx2.TransportError:
-            raise LLMConnectionError(
-                "Could not reach the Gemini API. Check your network."
-            ) from None
+        except (errors.APIError, httpx2.TransportError) as exc:
+            raise self._translate_error(exc) from None
 
         candidates = getattr(response, "candidates", None) or []
         finish = str(getattr(candidates[0], "finish_reason", "")) if candidates else ""
@@ -668,10 +809,18 @@ class ProviderStatus:
         return self.fallback_reason is not None
 
 
-def create_provider(settings: Settings, *, allow_offline_fallback: bool = False) -> ProviderStatus:
-    """Instantiate the configured provider.
+def create_provider(
+    settings: Settings,
+    *,
+    credential: Credential | None = None,
+    allow_offline_fallback: bool = False,
+) -> ProviderStatus:
+    """Instantiate the configured provider with ``credential``.
 
-    With ``allow_offline_fallback`` (used by the UI), a missing key or SDK falls back to the
+    The factory never looks up a key: the UI passes the session's credential from
+    :func:`docintel.credentials.resolve_credential` and the evaluation runner passes the server's
+    from :func:`docintel.credentials.server_credential`. Without one, a hosted provider can't be
+    built. With ``allow_offline_fallback`` (used by the UI), a missing key or SDK falls back to the
     offline extractive provider and the reason is reported so the UI can say so prominently.
     """
     from docintel.offline_provider import ExtractiveOfflineProvider
@@ -685,7 +834,7 @@ def create_provider(settings: Settings, *, allow_offline_fallback: bool = False)
     if settings.provider == "mock":
         return ProviderStatus(ExtractiveOfflineProvider(settings), "mock")
     try:
-        provider = classes[settings.provider](model, settings)
+        provider = classes[settings.provider](model, settings, credential=credential)
         return ProviderStatus(provider, settings.provider)
     except LLMConfigurationError as exc:
         if not allow_offline_fallback:

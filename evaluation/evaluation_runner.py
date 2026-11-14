@@ -33,7 +33,8 @@ from importlib import metadata
 from pathlib import Path
 
 from docintel.comparison import compare_documents
-from docintel.config import FIXTURES_DIR, PROJECT_ROOT, Settings
+from docintel.config import API_KEY_ENV_VARS, FIXTURES_DIR, PROJECT_ROOT, Settings
+from docintel.credentials import server_credential
 from docintel.extraction import extract_information
 from docintel.grounding import GroundingReport
 from docintel.llm_client import (
@@ -361,8 +362,17 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 2
 
+    credential = None
+    if args.provider != "mock":
+        # A local command-line tool: it uses the key of the person running it, from their
+        # environment or .env. It never sees a browser session's key.
+        credential = server_credential(args.provider)
+        if credential is None:
+            var = API_KEY_ENV_VARS[args.provider]
+            print(f"Cannot start: {var} is not set. Add it to your .env file.", file=sys.stderr)
+            return 2
     try:
-        status = create_provider(settings)
+        status = create_provider(settings, credential=credential)
     except LLMError as exc:
         print(f"Cannot start: {exc.user_message}", file=sys.stderr)
         return 2

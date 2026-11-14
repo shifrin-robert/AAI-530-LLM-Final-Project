@@ -4,7 +4,7 @@ This report separates four kinds of evidence and never mixes them:
 
 | Layer | What it shows | Status |
 |---|---|---|
-| A. Automated tests (`pytest`) | The code does what it claims (parsing, chunking, retrieval, prompts, citation checks, providers, UI) | **Run: 190 passed** |
+| A. Automated tests (`pytest`) | The code does what it claims (parsing, chunking, retrieval, prompts, citation checks, providers, UI) | **Run: 242 passed** |
 | B. Retrieval benchmark | How well each search method puts the right page in front of the model | **Run (offline, deterministic)** |
 | C. End-to-end offline baseline | The full pipeline on 40 labelled cases with the extractive (non-LLM) provider | **Run (offline, deterministic)** |
 | D. Live LLM evaluation, model benchmark, prompt v1 vs v2 | Answer quality of real models | **Pending**: needs an API key and spending approval |

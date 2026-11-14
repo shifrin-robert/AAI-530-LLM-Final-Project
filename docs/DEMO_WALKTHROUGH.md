@@ -2,8 +2,9 @@
 
 Two modes:
 
-* **Live mode** (recommended for the recording): `.env` contains an API key and the sidebar shows the
-  hosted model. "What to look for" describes the intended behavior; confirm it in a rehearsal, because
+* **Live mode** (recommended for the recording): paste your API key into the sidebar (or, on your own
+  computer only, set `DOCINTEL_KEY_MODE=owner` with the key in `.env`), and the sidebar shows the hosted
+  model. Don't show the key on screen: paste it before you start recording. "What to look for" describes the intended behavior; confirm it in a rehearsal, because
   live outputs have not been verified yet and can vary.
 * **Offline mode** (backup): no key; the sidebar says "Offline demo mode". Outputs below marked
   *observed* were seen in the offline app on 2026-11-13.

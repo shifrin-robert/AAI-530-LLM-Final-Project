@@ -45,6 +45,7 @@ OpenAI Usage page shows what was actually billed.
 | Stop on account errors | Further calls after a bad key, unknown model or spend limit; no results file is written | DocIntel runner |
 | Request cap per browser session | More than 200 model requests from one app session | `DOCINTEL_MAX_REQUESTS_PER_SESSION` |
 | Offline tests | `python -m pytest` never reads `.env` and never calls an API | `tests/conftest.py` |
+| Bring your own key | The app never uses the `.env` key unless owner mode is on, so a shared deployment can't spend it | `DOCINTEL_KEY_MODE` |
 
 OpenAI says spend-limit enforcement is not instantaneous, so recorded spend can slightly exceed a
 limit. The prepaid balance and the hard limit are the real ceilings. The runner's checks only
@@ -110,6 +111,9 @@ DOCINTEL_MODEL=gpt-6-luna
 OPENAI_API_KEY=<paste the key here>
 ```
 
+The command-line evaluation runner reads this key. The app ignores it unless you also set
+`DOCINTEL_KEY_MODE=owner` (Step 8), so a shared deployment never spends your key.
+
 Check that git ignores the file:
 
 ```bash
@@ -118,7 +122,7 @@ git check-ignore -v .env
 
 It should print the rule that ignores the file (`.gitignore:2:.env`), and `git status` must not list
 `.env`. The test suite stays offline with the key present: `python -m pytest` should still report
-190 passed.
+242 passed.
 
 ## Step 6. Dry run (free)
 
@@ -185,7 +189,16 @@ their own keys and the same billing precautions with those providers.
 streamlit run app.py
 ```
 
-The sidebar should show OpenAI and `gpt-6-luna`, not "Offline demo mode".
+Give the app the key in one of two ways:
+
+* **Paste it into the sidebar** (**Your OpenAI API key**, then **Use this key**). This is how every
+  other user of the app works, and the key lasts only for that browser session.
+* **Owner mode, on your own computer only:** add `DOCINTEL_KEY_MODE=owner` to `.env` and restart. The
+  app then uses the `.env` key for sessions without their own key. Never use owner mode on a shared
+  deployment.
+
+The sidebar should show "Active model: OpenAI GPT-6 Luna" and whose key is in use, not "Offline demo
+mode". **Check key** confirms the key with one model-information request, which uses no tokens.
 
 * Each question is one model request.
 * Summaries and extractions of long documents make several requests, and the app shows the plan and

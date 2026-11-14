@@ -15,7 +15,7 @@ every citation before showing highlighted evidence.
 
 The provisional model is OpenAI `gpt-6-luna` (about $0.15 per 100 typical requests), chosen after a
 documented comparison of OpenAI, Anthropic and Google models; Anthropic and Gemini adapters and an
-offline extractive provider are also implemented. The project includes 190 passing automated tests,
+offline extractive provider are also implemented. The project includes 242 passing automated tests,
 40 labelled evaluation cases over synthetic documents, a retrieval benchmark and an offline baseline
 evaluation. **Live LLM evaluation has not been run** because no API key or spending approval was
 available during development; the framework, commands and cost guards for it are in place.
@@ -86,7 +86,9 @@ preference. The choice must be confirmed by the live benchmark.
 and cost accounting, and user-safe error messages. The OpenAI adapter calls
 `client.responses.parse(model, instructions, input, text_format=Schema, max_output_tokens, store=False,
 reasoning={"effort": "low"})`. Model identifiers appear only in `model_catalog.py` and configuration.
-Without a key the UI falls back to the offline extractive provider and says so.
+Each user brings their own API key, entered in the sidebar and kept only in that browser session;
+server keys are used only in explicit owner mode (`DOCINTEL_KEY_MODE=owner`). Without a key the UI
+falls back to the offline extractive provider and says so.
 
 ## 10. Prompt customization
 
@@ -154,7 +156,7 @@ are machine-checked against the fixture pages. Table: `docs/PROMPT_AND_TESTING_A
 
 ## 17. Actual results
 
-* **Automated tests:** `python -m pytest` -> 190 passed.
+* **Automated tests:** `python -m pytest` -> 242 passed.
 * **Retrieval (collection setting):** on paraphrased questions BM25 got the right page into the model's
   context for 9 of 12 questions; hybrid and character n-grams for 11 of 12. On exact-wording questions
   all methods reached 100%; BM25 ranked slightly better (MRR 0.933 vs 0.917 for hybrid).
@@ -181,8 +183,11 @@ verification in the appendix, Section I.
 
 ## 20. Security
 
-Secrets only via environment variables (`.env` git-ignored, `.env.example` empty); keys read on demand
-as `SecretStr` and never logged; uploads validated and capped; in-memory processing without temporary
+Bring your own key: each user's key stays in their own session, is used only for its provider and
+is never shown, logged or written anywhere. Server keys (`.env` git-ignored, `.env.example` empty)
+are used only in explicit owner mode. Session keys get SDK clients sealed against server
+environment settings (see `docs/BYOK_SECURITY_REVIEW.md`). Keys are held as `SecretStr` and never
+logged; uploads validated and capped; in-memory processing without temporary
 files; session isolation without shared caches; safe error messages and hidden tracebacks
 (`showErrorDetails = "none"`); logs limited to events, IDs, counts and timings; prompt-injection
 defences (hierarchy, delimiters, flags, ID validation, canary); bounded retries and request budgets;

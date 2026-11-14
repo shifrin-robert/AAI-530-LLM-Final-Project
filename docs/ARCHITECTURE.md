@@ -29,7 +29,8 @@ across the selected documents.
 
 | Module | Responsibility |
 |---|---|
-| `config.py` | `Settings` from `DOCINTEL_*` environment variables (validated, frozen); API keys read on demand as `SecretStr`, never stored on settings |
+| `config.py` | `Settings` from `DOCINTEL_*` environment variables and `.env` (validated, frozen; `.env` is read into a dictionary, never copied into `os.environ`); server keys read on demand as `SecretStr`, never stored on settings |
+| `credentials.py` | Bring your own key: per-session `SessionKeyStore`, key format checks, `resolve_credential` (session key first, server key only in owner mode), detection of server SDK settings that would leak into user requests |
 | `model_catalog.py` | The only place model IDs and prices live; cost estimation |
 | `models.py` | Pydantic records (documents, pages, chunks, source passages) and the strict LLM output schemas |
 | `security.py` | Prompt-injection heuristics, filename/inline sanitization, delimiter neutralization, safe error messages, logging policy |
@@ -37,7 +38,7 @@ across the selected documents.
 | `chunking.py` | Deterministic page-bounded chunks with exact character offsets and a document-title search header |
 | `retrieval.py` | Tokenizer/stemmer, BM25, character n-gram TF-IDF, hybrid RRF, context selection |
 | `prompting.py` | Loads `prompts/*.md`, single-pass placeholder rendering, `<source>` block formatting, conversation history |
-| `llm_client.py` | Provider interface; OpenAI, Anthropic, Gemini adapters; scripted provider; retries, budget, usage and cost |
+| `llm_client.py` | Provider interface; OpenAI, Anthropic, Gemini adapters built only from an explicit credential (session keys get sealed SDK clients); key check through a model-information request; scripted provider; retries, budget, usage and cost |
 | `offline_provider.py` | Deterministic extractive baseline used without an API key and as an evaluation baseline |
 | `grounding.py` | Citation validation and the grounding report/verdict |
 | `qa.py`, `summarization.py`, `extraction.py`, `comparison.py` | Task workflows |
@@ -99,6 +100,36 @@ ratings and rendered page images there. `tests/test_app.py` runs two independent
 asserts that documents loaded in one are invisible in the other. This is session isolation for a
 single-server prototype; it has not been tested as a multi-tenant production deployment (no
 authentication, quotas or audit logging).
+
+### API keys (bring your own key)
+
+```text
+sidebar form --(callback)--> SessionKeyStore in st.session_state      (one per browser session)
+resolve_credential(provider, settings, store)
+    1. this session's key for this provider                  -> Credential(source="session")
+    2. DOCINTEL_KEY_MODE=owner only: server key (env / .env) -> Credential(source="server")
+    3. otherwise None -> offline demo mode with "Enter your key"
+create_provider(settings, credential) -> adapter builds the SDK client from that credential only
+```
+
+* The default mode is `byok`. In it, server keys are never used for a browser session, even when
+  `OPENAI_API_KEY` and the others are set on the server.
+* Adapters never read keys from the environment. A hosted provider without a credential cannot be
+  built. The command-line evaluation runner passes the server key explicitly
+  (`server_credential`), because the person running it owns that key.
+* **Sealed clients for session keys.** The installed SDKs read some settings from the server
+  environment even when a key is passed. DocIntel neutralizes what it can:
+  * explicit official endpoints (`OPENAI_BASE_URL`, `ANTHROPIC_BASE_URL`);
+  * clearing `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID` and `OPENAI_ADMIN_KEY`;
+  * an explicit key, which stops the Anthropic SDK from reading `ANTHROPIC_AUTH_TOKEN` or profiles;
+  * `vertexai=False`, which stops Gemini requests being re-routed by `GOOGLE_GENAI_USE_VERTEXAI`.
+
+  It refuses session keys while settings that cannot be overridden are present: extra headers,
+  SDK debug logging, and content telemetry.
+* Providers are cached per session and dropped whenever a key is set, removed or cleared.
+* There is no module-level cache, `st.cache_*` or global holding keys or clients.
+
+The full review, findings and tests are in [BYOK_SECURITY_REVIEW.md](BYOK_SECURITY_REVIEW.md).
 
 ## 6. Error handling
 
