@@ -1,8 +1,11 @@
 # Live Evaluation Guide
 
 This guide covers setting up the OpenAI API for DocIntel AI, capping what it can spend, and running
-the live evaluation in stages. As of 2026-11-14 none of it has been run: no paid API call has been
-made, and every result in the repository comes from the offline baseline.
+the live evaluation in stages.
+
+**Status (2026-11-14):** the core plan below (Steps 6 and 7a to 7c) was run, for $0.056 computed from
+token counts. The results are in [EVALUATION_REPORT.md](EVALUATION_REPORT.md), Section 5. Not yet run:
+the human review (7d), the proposed prompt v3, and the other models.
 
 OpenAI dashboard labels below come from OpenAI's documentation, checked on 2026-11-14 (sources at
 the end). Screens change; if a label differs, look for the closest match.
@@ -122,7 +125,7 @@ git check-ignore -v .env
 
 It should print the rule that ignores the file (`.gitignore:2:.env`), and `git status` must not list
 `.env`. The test suite stays offline with the key present: `python -m pytest` should still report
-242 passed.
+285 passed.
 
 ## Step 6. Dry run (free)
 
@@ -172,10 +175,31 @@ python -m evaluation.evaluation_runner --provider openai --prompt-version v2 --r
 
 ### 7d. Human review sheet
 
-The sheet is pre-filled with the v2 answers for the team to rate:
+The worksheet is pre-filled with the v2 answers and the outcome of each v2 repeat. The reviewer
+columns are left blank. It is written to `evaluation/human_review/`; instructions are in the
+`README.md` there:
 
 ```bash
-python -m evaluation.make_review_sheet evaluation/results/<run>_v2_live-v2.json
+python -m evaluation.make_review_sheet evaluation/results/<run>_v2_live-v2.json --repeats evaluation/results/<run>_v2_live-v2-x3.json
+```
+
+### 7e. Scoring audit (free)
+
+Re-score the saved runs with the original and the proposed revised rules. The audit only reads
+`evaluation/results/` and writes to `evaluation/audit/`:
+
+```bash
+python -m evaluation.scoring_audit
+```
+
+### Optional: proposed prompt v3
+
+Prompt v3 adds one rule for figures reported as of different dates (case CF-02). It is not the
+default and the app does not offer it. Test it against the v2 repeats only after spending is
+authorized. The conservative estimate is $0.162:
+
+```bash
+python -m evaluation.evaluation_runner --provider openai --prompt-version v3 --repeats 3 --allow-paid --max-cost-usd 0.2 --tag live-v3-x3
 ```
 
 ### Optional model benchmark

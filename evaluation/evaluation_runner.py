@@ -48,7 +48,7 @@ from docintel.llm_client import (
 )
 from docintel.model_catalog import estimate_cost_usd
 from docintel.models import JudgeVerdict
-from docintel.prompting import load_prompt
+from docintel.prompting import QA_PROMPTS, load_prompt
 from docintel.qa import answer_question
 from docintel.session import DocumentWorkspace
 from docintel.summarization import summarize_documents
@@ -308,7 +308,12 @@ def main(argv: list[str] | None = None) -> int:
         "--provider", default="mock", choices=["mock", "openai", "anthropic", "gemini"]
     )
     parser.add_argument("--model", default=None)
-    parser.add_argument("--prompt-version", default="v2", choices=["v1", "v2"])
+    parser.add_argument(
+        "--prompt-version",
+        default="v2",
+        choices=sorted(QA_PROMPTS),
+        help="QA prompt (default v2; v3 is a proposed revision that is not offered in the app)",
+    )
     parser.add_argument("--retriever", default=None, choices=["bm25", "char_ngram", "hybrid"])
     parser.add_argument("--cases", default=None, help="comma-separated case IDs (default: all)")
     parser.add_argument(
@@ -335,7 +340,8 @@ def main(argv: list[str] | None = None) -> int:
     settings = Settings.from_env().with_overrides(
         provider=args.provider,
         model=args.model,
-        qa_prompt_version=args.prompt_version,
+        # The QA prompt version is passed to every case explicitly (run_case), so proposals such
+        # as v3 can be evaluated without becoming an app setting.
         max_requests_per_session=100_000,
         **({"retriever": args.retriever} if args.retriever else {}),
     )

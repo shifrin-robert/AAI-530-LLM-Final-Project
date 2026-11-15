@@ -159,7 +159,9 @@ def format_document_list(passages: Sequence[SourcePassage]) -> str:
     )
 
 
-QA_PROMPTS = {"v1": "grounded_qa_v1", "v2": "grounded_qa_v2"}
+# v3 is a proposal for the evaluation runner only. It has not been evaluated with a live model, so
+# the app and DOCINTEL_QA_PROMPT_VERSION still accept only v1 and v2 (see config.py).
+QA_PROMPTS = {"v1": "grounded_qa_v1", "v2": "grounded_qa_v2", "v3": "grounded_qa_v3"}
 
 
 def qa_prompt(version: str) -> PromptTemplate:

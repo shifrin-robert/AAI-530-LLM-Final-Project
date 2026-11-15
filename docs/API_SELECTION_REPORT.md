@@ -1,9 +1,13 @@
 # API Selection Report
 
 **Status: PROVISIONAL.** The recommendation below is based on documented capabilities and verified
-list prices. No live model has been benchmarked yet, because no API key or spending authorization was
-available while the project was built. Section 8 explains how to run the benchmark that would confirm
-or change the choice.
+list prices.
+
+* **Measured:** the recommended model, `gpt-6-luna`, was evaluated live on 2026-11-14 on the 40
+  labelled cases. It passed 39 of 40 with prompt v2, scored automatically (Section 8).
+* **Not measured:** the other models have not been benchmarked, so the comparison between models
+  is still based on documentation and prices. Section 8 explains how to run the benchmark that would
+  confirm or change the choice.
 
 | | |
 |---|---|
@@ -180,7 +184,7 @@ API with strict structured outputs and `store=false`.**
 Mid and frontier models cost 10-100x more; they should be adopted only if the benchmark shows the
 economy model failing on our categories (multi-page reasoning, conflicts, abstention).
 
-## 8. Model benchmarking (framework implemented, live results pending)
+## 8. Model benchmarking (one model measured; comparison pending)
 
 The same 40 labelled cases, settings and prompt versions are used for every model:
 
@@ -201,8 +205,21 @@ citation-support check (spot-check it by hand).
 points of the best model tested and it has no injection failures; otherwise move to the cheapest model
 that meets that bar.
 
-**Measured results: none yet.** No live comparison has been run, so no model has been shown to be
-better than another on this task.
+**Measured results (2026-11-14, one model).** `gpt-6-luna` was scored automatically; no result has
+been human-reviewed. Full results are in `docs/EVALUATION_REPORT.md`, Section 5.
+
+| Run | Passed | Notes |
+|---|---|---|
+| Prompt v2 | 39 / 40 | No errors |
+| Prompt v1 | 37 / 40 | Not significantly different from v2 |
+| Prompt v2, 3 repeats | 116 / 120 | Outcome agreement 0.95 |
+
+* **Schema and citations:** schema-valid output in all 203 live case runs, and no fabricated citation
+  ID or prompt-canary leak.
+* **Speed:** mean latency about 4 seconds; up to 21 seconds for extraction.
+* **Cost:** $0.0127 per 40-case run with prompt v2, computed from token counts.
+* **Decision rule:** it cannot be applied until a second model is run. No other model has been
+  tested, so `gpt-6-luna` has not been shown to be better than any alternative.
 
 ## 9. Documented versus verified
 
@@ -210,6 +227,6 @@ better than another on this task.
 |---|---|---|
 | Prices, context windows, policies above | yes (pages cited) | read on 2026-11-13; may change |
 | Request/response format of each adapter | yes | **yes, offline**: tests run each adapter against the real SDK with mocked HTTP responses (`tests/test_llm_client.py`) |
-| JSON-schema adherence in practice | yes | **no** (needs a live run) |
-| Grounding, abstention, conflict and injection behavior | no | **no** for live models; measured only for the offline baseline (`docs/EVALUATION_REPORT.md`) |
-| Latency and real token usage | no | **no** |
+| JSON-schema adherence in practice | yes | **yes, for `gpt-6-luna`**: schema-valid output in 203 of 203 live case runs; other models not tested |
+| Grounding, abstention, conflict and injection behavior | no | **Partly**: measured for `gpt-6-luna` on 40 synthetic cases with automatic scoring, not human-reviewed (`docs/EVALUATION_REPORT.md` Sections 5 and 6) |
+| Latency and real token usage | no | **yes, for `gpt-6-luna`**: mean 3.9 s per case (prompt v2); 411,087 input and 87,445 output tokens over 203 case runs |

@@ -15,10 +15,11 @@ every citation before showing highlighted evidence.
 
 The provisional model is OpenAI `gpt-6-luna` (about $0.15 per 100 typical requests), chosen after a
 documented comparison of OpenAI, Anthropic and Google models; Anthropic and Gemini adapters and an
-offline extractive provider are also implemented. The project includes 242 passing automated tests,
-40 labelled evaluation cases over synthetic documents, a retrieval benchmark and an offline baseline
-evaluation. **Live LLM evaluation has not been run** because no API key or spending approval was
-available during development; the framework, commands and cost guards for it are in place.
+offline extractive provider are also implemented. The project includes 285 passing automated tests,
+40 labelled evaluation cases over synthetic documents, a retrieval benchmark, an offline baseline
+evaluation and a live evaluation of `gpt-6-luna` that cost $0.056 in total (2026-11-14). With the
+default prompt v2 the model passed 39 of 40 cases, and 155 of 160 over four runs. These scores are
+automatic; no result has been reviewed by a person yet.
 
 ## 2. Real-world problem
 
@@ -142,8 +143,16 @@ original PDF page with the quote highlighted.
 
 ## 15. Evaluation methodology
 
-Five layers: automated tests; dataset integrity checks; retrieval benchmark; end-to-end evaluation
-(offline baseline now, live models when authorized); human review. Automatic scoring checks required
+Six layers:
+
+1. automated tests;
+2. dataset integrity checks;
+3. retrieval benchmark;
+4. end-to-end evaluation: the offline baseline, then GPT-6 Luna with prompts v1 and v2 on
+   2026-11-14;
+5. a scoring audit of the automatic rules;
+6. human review (the worksheet is ready, but no case has been reviewed).
+ Automatic scoring checks required
 facts, acceptable status, forbidden phrases, fabricated IDs, canary leaks, evidence pages, extraction
 recall and comparison constraints. Full method: `docs/EVALUATION_REPORT.md`.
 
@@ -156,21 +165,39 @@ are machine-checked against the fixture pages. Table: `docs/PROMPT_AND_TESTING_A
 
 ## 17. Actual results
 
-* **Automated tests:** `python -m pytest` -> 242 passed.
+* **Automated tests:** `python -m pytest` -> 285 passed.
 * **Retrieval (collection setting):** on paraphrased questions BM25 got the right page into the model's
   context for 9 of 12 questions; hybrid and character n-grams for 11 of 12. On exact-wording questions
   all methods reached 100%; BM25 ranked slightly better (MRR 0.933 vs 0.917 for hybrid).
 * **Offline extractive baseline (not an LLM):** 23/40 cases passed; answer accuracy 0.615, correct
   abstention 0.600, conflict handling 0.000, injection resistance 0.750, citation ID validity 1.000,
   extraction recall 0.900.
-* **Live LLM results:** none yet.
+* **Live LLM results:** GPT-6 Luna, automatic scoring, not human-reviewed.
+  * Prompt v2 passed 39 of 40 cases.
+  * Its other metrics: answer accuracy 0.962, correct abstention 1.000, false abstention 0.000,
+    citation ID validity 1.000, quote match 1.000, heuristic support 0.964 (word overlap) and
+    extraction recall 1.000.
+  * Prompt v1 passed 37 of 40.
+  * Three more v2 runs passed 116 of 120, with outcome agreement 0.95.
+  * The total cost was $0.056, computed from the API's token counts.
+* **Scoring audit:** two automatic rules were stricter than the cases' own criteria: the conflict
+  rule, and the injection rule when an answer quotes injected text. Under the proposed revisions,
+  v1 scores 38 of 40 and the v2 repeats 118 of 120; the v2 main run is unchanged at 39 of 40. The
+  original scores remain the scores of record.
+* **Genuine failure:** CF-02. The model gives only the later of two dated spending figures, although
+  both were in its context. It passed 1 of 4 attempts with v2.
 
 ## 18. Prompt revisions
 
 v1 -> v2 added the instruction hierarchy, untrusted-document rules, verbatim quotes, fact/inference
 labels, partial and insufficient statuses, the conflict procedure, ambiguity and confidence rules and
 confidentiality. The revisions came from reviewing v1 against the test categories and the validator's
-needs, not from live failures; the measured comparison is pending.
+needs, not from live failures.
+
+Measured on 2026-11-14, v2 passed 39 of 40 cases and v1 passed 37. One of the two differences (INJ-03)
+is a scoring artifact, and the difference is not statistically significant (exact McNemar p = 0.5).
+A v3 that adds one rule for figures reported as of different dates is proposed for CF-02; it has not
+been run (`docs/EVALUATION_REPORT.md`, Section 7).
 
 ## 19. Failure analysis
 
@@ -180,6 +207,11 @@ conflicts reduced to one side (CF-01), multi-page questions missed. Development 
 (hyphenation corrupting compound words, boilerplate in every chunk, a ranking regression after its
 removal, an SDK dependency change, PDF ligatures breaking highlights) are documented with their
 verification in the appendix, Section I.
+
+Live model failures: CF-02 leaves out an earlier dated figure that was in its context. INJ-03
+answers that flag the injected text by quoting it were failed by a phrase check that cannot tell
+quoting from obeying. Details and the scoring audit are in `docs/EVALUATION_REPORT.md`, Sections 6
+and 7.
 
 ## 20. Security
 
@@ -224,7 +256,8 @@ and wrote the documentation. How the work was verified and what the team must st
 
 ## 25. Known limitations
 
-* No live LLM evaluation yet; LLM behavior is designed but unmeasured.
+* Live LLM behavior is measured for one model (`gpt-6-luna`) on 40 synthetic cases, with automatic
+  scoring only; human review has not started.
 * Lexical retrieval misses pure synonyms (measured: "drinks" vs "alcoholic beverages").
 * No OCR; complex tables and multi-column layouts may extract imperfectly.
 * Chunks do not cross pages, so a sentence split by a page break is split between chunks.
@@ -236,7 +269,8 @@ and wrote the documentation. How the work was verified and what the team must st
 
 ## 26. Future improvements
 
-1. Run the live benchmark and prompt v1/v2 comparison; complete human review.
+1. Complete the human review; test the proposed prompt v3; benchmark other models with the same
+   harness.
 2. Add embedding retrieval (or hybrid lexical + embeddings) and compare with the existing benchmark.
 3. Optional OCR (for example Tesseract) with confidence reporting.
 4. Semantic citation checking with an entailment model or calibrated LLM judge.
@@ -250,5 +284,6 @@ DocIntel AI demonstrates LLM engineering beyond a chat wrapper: a deterministic,
 layer; prompts designed around an explicit trust boundary; schema-constrained outputs; and an
 independent verification layer that turns citations into checkable evidence. Its offline evaluation
 shows both why grounding matters and why valid citations alone do not guarantee correct answers. The
-remaining step is empirical: run the prepared live evaluation, compare prompts and models, and let the
-measurements decide the final configuration.
+live evaluation of GPT-6 Luna (39 of 40 cases with prompt v2, scored automatically) supports the
+design. Three steps remain before the final configuration is fixed: human review, a test of the
+proposed prompt v3, and a comparison with other models.

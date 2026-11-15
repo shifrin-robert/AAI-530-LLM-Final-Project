@@ -190,6 +190,15 @@ def test_offline_evaluation_runner_end_to_end(tmp_path):
     assert (tmp_path / f"{run['metadata']['run_id']}.md").is_file()
 
 
+def test_offline_runner_accepts_the_proposed_v3_prompt(tmp_path):
+    code = evaluation_runner.main(
+        ["--provider", "mock", "--prompt-version", "v3", "--cases", "CF-02", "--out", str(tmp_path)]
+    )
+    assert code == 0
+    run = json.loads(next(tmp_path.glob("*.json")).read_text())
+    assert run["metadata"]["prompt_version"] == "v3" and run["metrics"]["errors"] == 0
+
+
 def test_runner_refuses_paid_provider_without_explicit_permission(tmp_path, capsys):
     code = evaluation_runner.main(
         ["--provider", "openai", "--cases", "DF-01", "--out", str(tmp_path)]

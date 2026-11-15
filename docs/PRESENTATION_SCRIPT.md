@@ -4,9 +4,10 @@ No recording exists yet; the team records it. Timing target: **introduction 4:35
 **live demonstration 7:00** (minimum 5:00), **results and conclusion 2:30**, total about 14 minutes.
 Speaker assignments follow the proposed responsibilities and can be swapped.
 
-Two variants are marked where content depends on whether the live evaluation has been run before
-recording: **[LIVE]** (use measured numbers from `evaluation/results/`) and **[OFFLINE]** (present
-the offline results and say live results are pending). Never present estimates as results.
+The live evaluation was run on 2026-11-14, so the results slide uses its measured numbers from
+`docs/EVALUATION_REPORT.md`. Never present estimates as results. Always say that the scores are
+automatic and not human-reviewed, unless the team finishes the human review before recording; in
+that case use its results.
 
 ## Running order
 
@@ -80,7 +81,7 @@ matched against the passage text, and the evidence panel highlights them."
 ### Slide 8: Evaluation design (0:30)
 **On slide:** 40 labelled cases in 11 categories over synthetic PDFs; 12 paraphrase retrieval
 questions; metrics: accuracy, abstention, conflicts, injection resistance, citation validity, quote
-match, cost; 242 automated tests.
+match, cost; 285 automated tests.
 **Notes (Marie):** "Every reference answer is checked automatically against the actual PDF page, so
 our labels can be verified."
 
@@ -93,18 +94,29 @@ content, provider disclosure, `store=false`, injection defences, human verificat
 Follow `docs/DEMO_WALKTHROUGH.md`.
 
 ### Slide 11: Results (1:00)
-**On slide (measured now):** 242 tests pass. Retrieval: on paraphrased questions, keyword search got
-the right page to the model 9/12 times, hybrid 11/12; one synonym question ("drinks" vs "alcoholic
-beverages") defeats all lexical methods. Offline baseline: 23/40 cases; 0/3 conflicts; quoted an
-injected instruction once.
-**Notes:** "The baseline's failures show why an LLM with our prompts is needed, and why valid
-citations are not the same as correct answers: it once cited a real sentence that did not answer the
-question." [LIVE] add the LLM's metrics side by side with the baseline and name the failure cases.
-[OFFLINE] "Live model results are pending; we will not estimate them."
+**On slide (measured, automatic scoring):**
+
+* 285 tests pass.
+* Retrieval: on paraphrased questions, keyword search got the right page to the model 9 of 12
+  times, hybrid 11 of 12. One synonym question ("drinks" vs "alcoholic beverages") defeats every
+  lexical method.
+* End to end, on 40 cases: the offline baseline passed 23. GPT-6 Luna passed 37 with prompt v1 and
+  39 with prompt v2 (38, 40 and 38 in three more runs).
+* In 203 live case runs: no fabricated citation and no prompt leak; every missing-information case
+  abstained correctly. Total cost $0.056.
+
+**Notes (Marie):** "The baseline's failures show why an LLM with our prompts is needed. The live
+model fixes most of them. Its one real failure is CF-02: asked how much has been spent to date, it
+usually gave only the latest figure, although both figures were in its context. It passed once in
+four tries. Our scoring audit found two automatic rules that were too strict. For example, an answer
+that quoted an injected instruction in order to warn about it was counted as obeying it. So we
+report the original and the revised scores side by side, and no result file was changed. Prompts v1
+and v2 differ by one or two cases, which is not statistically significant. None of this has been
+reviewed by a person yet; the review worksheet is ready."
 
 ### Slide 12: Limitations (0:30)
-**On slide:** Live behavior unmeasured [OFFLINE]; synonyms; no OCR; heuristic checks; small synthetic
-dataset; prototype security.
+**On slide:** One model measured, scored automatically, not yet human-reviewed; synonyms; no OCR;
+heuristic checks; small synthetic dataset; prototype security.
 
 ### Slide 13: AI-assisted development (0:30)
 **On slide:** AIAS Level 4. ChatGPT: planning and review. Claude Code: implementation, tests,
@@ -114,8 +126,8 @@ documentation. Verification: tests, contract tests, benchmarks, visual review, o
 **[TEAM TO CONFIRM]**.
 
 ### Slide 14: Future work and close (0:30)
-**On slide:** Live benchmark and prompt comparison; embedding retrieval; OCR; semantic citation
-checking; bigger independent test set.
+**On slide:** Human review; test of the proposed prompt v3; other models; embedding retrieval; OCR;
+semantic citation checking; bigger independent test set.
 **Notes:** "DocIntel turns citations into evidence you can check. Thank you."
 
 ## Recording tips

@@ -45,8 +45,9 @@ understand long documents and verify what they will act on.
   except the passages sent to the chosen model provider.
 * **Model choice:** OpenAI (default), Anthropic or Google Gemini via configuration, plus an offline
   mode that needs no key.
-* **Evaluation suite:** 40 labelled cases, a retrieval benchmark, cost-guarded live evaluation and a
-  human review sheet.
+* **Evaluation suite:** 40 labelled cases, a retrieval benchmark, a cost-guarded live evaluation
+  (GPT-6 Luna passed 39 of 40 cases with prompt v2, scored automatically), a scoring audit and a
+  human review worksheet.
 
 | Prompt-injection document, flagged | Cited page with highlight |
 |---|---|
@@ -169,7 +170,7 @@ sidebar to use a hosted model. See the [user guide](docs/USER_GUIDE.md).
 python -m pytest
 ```
 
-All 242 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
+All 285 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
 are tested against the real SDKs with mocked HTTP; the UI is tested headlessly with Streamlit's
 AppTest.
 
@@ -198,9 +199,28 @@ Set up the key and a hard spend limit with the
 python -m evaluation.evaluation_runner --provider openai --model gpt-6-luna --allow-paid --max-cost-usd 1
 ```
 
-Results are written to `evaluation/results/`. Current measured results (retrieval benchmark and the
-offline extractive baseline: 23 of 40 cases) and the pending live evaluation are reported in
-[docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md).
+Results are written to `evaluation/results/` and reported in
+[docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md). The live evaluation ran on 2026-11-14 with
+GPT-6 Luna and cost $0.056 in total, computed from the token counts the API returned:
+
+| Run (40 labelled cases) | Passed | Kind of result |
+|---|---|---|
+| Offline extractive baseline (not an LLM) | 23 / 40 | Measured offline, automatic scoring |
+| GPT-6 Luna, prompt v1 | 37 / 40 | Live, automatic scoring |
+| GPT-6 Luna, prompt v2 (default) | 39 / 40 | Live, automatic scoring |
+| GPT-6 Luna, prompt v2, three repeats | 116 / 120 | Live, automatic scoring |
+
+These are automatic scores, not human judgements.
+
+* **Citation support** is a word-overlap heuristic, not a semantic check.
+* **Human review:** no case has been reviewed by a person yet; the worksheet is in
+  `evaluation/human_review/`.
+* **Prompts:** v1 and v2 do not differ significantly on 40 cases.
+* **Scoring audit** (`python -m evaluation.scoring_audit`): it found two automatic rules stricter
+  than the cases' own criteria, for conflicts and for quoted injections. It re-scores the saved
+  answers with proposed revisions without changing any result file.
+* **The one genuine failure**, CF-02 (an earlier dated figure left out), and a proposed prompt v3
+  for it are described in the report. v3 has not been run.
 
 ## Repository structure
 
@@ -220,9 +240,9 @@ src/docintel/                Application package
   grounding.py               Citation validation
   qa.py, summarization.py, extraction.py, comparison.py   Task workflows
   session.py, security.py, workflow_utils.py
-prompts/                     Versioned prompt templates (QA v1 and v2, summary, extraction, comparison)
-tests/                       242 automated tests (offline)
-evaluation/                  Fixtures, labelled cases, runners, scoring, results
+prompts/                     Versioned prompt templates (QA v1, v2 and proposed v3, summary, extraction, comparison)
+tests/                       285 automated tests (offline)
+evaluation/                  Fixtures, labelled cases, runners, scoring, scoring audit, results, review worksheet
 scripts/                     Cost estimate and project audit
 docs/                        Documentation, appendix, evaluation, ethics, presentation materials
 assets/screenshots/          Screenshots of the running app (offline demo mode)
@@ -236,7 +256,7 @@ assets/screenshots/          Screenshots of the running app (offline demo mode)
 | [Architecture](docs/ARCHITECTURE.md) | Pipeline, modules, design decisions |
 | [API selection report](docs/API_SELECTION_REPORT.md) | Providers, models, prices, data handling, decision |
 | [Prompt and testing appendix](docs/PROMPT_AND_TESTING_APPENDIX.md) | Prompts, versions, schemas, cases, outputs, iterations |
-| [Evaluation report](docs/EVALUATION_REPORT.md) | Method, measured results, pending runs |
+| [Evaluation report](docs/EVALUATION_REPORT.md) | Method, offline and live results, scoring audit, human review status |
 | [Live evaluation guide](docs/LIVE_EVALUATION_GUIDE.md) | API key, spend limits and staged live runs |
 | [BYOK security review](docs/BYOK_SECURITY_REVIEW.md) | How API keys could leak, what prevents it, tests, limits |
 | [AI use and ethical reflection](docs/AI_USE_AND_ETHICAL_REFLECTION.md) | AI tools, verification, risks |
@@ -281,6 +301,6 @@ verified record is in [docs/TEAM_CONTRIBUTIONS.md](docs/TEAM_CONTRIBUTIONS.md).
 
 ## Future improvements
 
-Run the live benchmark and prompt comparison; add embedding retrieval; optional OCR; semantic
-citation checking; a larger independent evaluation set; prompt caching and streaming; authentication
+Complete the human review; test the proposed prompt v3 and benchmark other models; add embedding
+retrieval; optional OCR; semantic citation checking; a larger independent evaluation set; prompt caching and streaming; authentication
 for multi-user deployment.

@@ -1,6 +1,8 @@
+import difflib
+
 import pytest
 
-from docintel.config import PROMPTS_DIR
+from docintel.config import PROMPTS_DIR, Settings
 from docintel.prompting import (
     PROMPT_CANARY,
     ConversationTurn,
@@ -16,6 +18,7 @@ from tests.conftest import passage
 ALL_PROMPTS = [
     "grounded_qa_v1",
     "grounded_qa_v2",
+    "grounded_qa_v3",
     "summarization",
     "summarization_section",
     "summarization_combine",
@@ -132,3 +135,30 @@ def test_task_prompts_include_canary_and_untrusted_data_rule(name):
 
 def test_prompts_directory_contains_only_expected_files():
     assert sorted(p.stem for p in PROMPTS_DIR.glob("*.md")) == sorted(ALL_PROMPTS)
+
+
+# ------------------------------------------------------------------ proposed v3 (not the default)
+
+
+def test_v3_adds_only_the_dated_figures_rule_to_v2():
+    v2, v3 = qa_prompt("v2"), qa_prompt("v3")
+    assert v3.user == v2.user
+    diff = list(difflib.ndiff(v2.system.splitlines(), v3.system.splitlines()))
+    assert not [line for line in diff if line.startswith("- ")]
+    added = " ".join(line[2:].strip() for line in diff if line.startswith("+ "))
+    assert added.startswith("- Figures that change over time")
+    assert "Do not keep only the latest value." in added
+
+
+def test_v3_is_a_proposal_and_v2_stays_the_default():
+    assert Settings().qa_prompt_version == "v2"
+    with pytest.raises(ValueError):
+        Settings(qa_prompt_version="v3")  # not an app setting until it has been evaluated
+    header = (PROMPTS_DIR / "grounded_qa_v3.md").read_text(encoding="utf-8").split("---")[1]
+    assert "status: proposed" in header
+
+
+def test_v3_example_does_not_contain_evaluation_answers():
+    system = qa_prompt("v3").system
+    for leaked in ("112,400", "118,900", "September 30", "October 10", "catalog"):
+        assert leaked not in system
