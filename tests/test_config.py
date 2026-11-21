@@ -24,7 +24,7 @@ def test_test_suite_never_loads_a_real_env_file(tmp_path, monkeypatch):
 def test_defaults_are_valid():
     s = Settings()
     assert s.provider == "openai" and s.resolved_model == "gpt-6-luna"
-    assert s.retriever == "hybrid" and s.qa_prompt_version == "v2"
+    assert s.retriever == "hybrid" and s.qa_prompt_version == "v3"
 
 
 def test_settings_from_env_parses_and_validates():

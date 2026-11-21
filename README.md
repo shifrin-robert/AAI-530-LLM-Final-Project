@@ -177,7 +177,7 @@ src/docintel/                Application package
   grounding.py               Citation validation
   qa.py, summarization.py, extraction.py, comparison.py   Task workflows
   session.py, security.py, workflow_utils.py
-prompts/                     Versioned prompt templates (QA v1 and v2, summary, extraction, comparison)
+prompts/                     Versioned prompt templates (QA v1, v2, v3 default; summary, extraction, comparison)
 tests/                       190 automated tests (offline)
 evaluation/                  Fixtures, labelled cases, runners, scoring, results
 scripts/                     Cost estimate and project audit

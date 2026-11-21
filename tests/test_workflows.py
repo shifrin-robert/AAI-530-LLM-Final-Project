@@ -30,7 +30,7 @@ def test_offline_qa_answers_with_valid_citation_to_correct_page(workspace_with, 
     assert "4,500.00" in result.output.answer
     assert result.report.unknown_source_ids == []
     assert any(c.page_number == 2 and c.quote_status == "exact" for c in result.report.checks)
-    assert result.prompt_label == "grounded_qa@v2" and result.offline
+    assert result.prompt_label == "grounded_qa@v3" and result.offline
 
 
 def test_qa_requires_documents_and_a_valid_question(settings, offline, workspace_with):
