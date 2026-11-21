@@ -81,7 +81,7 @@ found in only one document, and similarities. Each finding cites its sources; co
 
 * **Model provider / Model**: providers appear when their key is set in `.env`; the model list shows
   prices per million tokens.
-* **Answer settings**: prompt version (v2 default, v1 baseline for comparison), search method (hybrid
+* **Answer settings**: prompt version (v3 default; v2 and the v1 baseline kept for comparison), search method (hybrid
   default, keyword BM25, character n-grams) and passages per answer.
 * **Clear session** removes all documents, answers and ratings from this browser session.
 

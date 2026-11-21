@@ -329,10 +329,13 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
         with st.expander("Answer settings"):
             prompt_version = st.radio(
                 "Question-answering prompt",
-                ["v2", "v1"],
+                ["v3", "v2", "v1"],
                 horizontal=True,
-                index=0 if base.qa_prompt_version == "v2" else 1,
-                help="v2 is the revised prompt (default). v1 is the original baseline, kept for comparison.",
+                index=["v3", "v2", "v1"].index(base.qa_prompt_version),
+                help=(
+                    "v3 is the current prompt (default): v2 with a stricter rule for conflicting "
+                    "sources. v2 and v1 are earlier versions, kept for comparison."
+                ),
             )
             retriever = st.selectbox(
                 "Search method",

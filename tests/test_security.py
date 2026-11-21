@@ -63,7 +63,7 @@ def test_source_delimiters_are_neutralized():
 
 
 def test_gitignore_protects_secrets_and_private_documents():
-    rules = (ROOT / ".gitignore").read_text().splitlines()
+    rules = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
     for rule in (
         ".env",
         "*.pdf",
@@ -100,18 +100,18 @@ def test_no_api_keys_committed_in_project_files():
 
 
 def test_env_example_contains_no_values_for_keys():
-    for line in (ROOT / ".env.example").read_text().splitlines():
+    for line in (ROOT / ".env.example").read_text(encoding="utf-8").splitlines():
         if line.endswith("_API_KEY=") or not line.split("=")[0].endswith("_API_KEY"):
             continue
         pytest.fail(f".env.example must not contain key values: {line.split('=')[0]}")
 
 
 def test_streamlit_config_hides_tracebacks_and_telemetry():
-    config = (ROOT / ".streamlit" / "config.toml").read_text()
+    config = (ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
     assert 'showErrorDetails = "none"' in config
     assert "gatherUsageStats = false" in config
 
 
 def test_app_does_not_cache_documents_across_sessions():
-    source = (ROOT / "app.py").read_text()
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
     assert "st.cache_data" not in source and "st.cache_resource" not in source

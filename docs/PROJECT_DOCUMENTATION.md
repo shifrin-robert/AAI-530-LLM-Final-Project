@@ -90,10 +90,12 @@ Without a key the UI falls back to the offline extractive provider and says so.
 
 ## 10. Prompt customization
 
-Eight versioned prompt files (`prompts/`). The default QA prompt (v2) defines the role, instruction
+Nine versioned prompt files (`prompts/`). The default QA prompt (v3) defines the role, instruction
 hierarchy, documents as untrusted evidence, grounding, citation and quote rules, insufficient-evidence
 handling, conflicting-evidence handling (contradiction vs context difference), ambiguity, confidence,
-output format and safety/confidentiality. v1 is a minimal baseline kept for the iteration experiment.
+output format and safety/confidentiality. v3 is v2 with a stricter conflicting-evidence rule, adopted
+after live runs showed v2 sometimes dropped one version; v2 and v1 (a minimal baseline) are kept for
+the iteration experiment.
 Version history, reasons and full text: `docs/PROMPT_AND_TESTING_APPENDIX.md`.
 
 ## 11. PDF processing

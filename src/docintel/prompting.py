@@ -159,7 +159,7 @@ def format_document_list(passages: Sequence[SourcePassage]) -> str:
     )
 
 
-QA_PROMPTS = {"v1": "grounded_qa_v1", "v2": "grounded_qa_v2"}
+QA_PROMPTS = {"v1": "grounded_qa_v1", "v2": "grounded_qa_v2", "v3": "grounded_qa_v3"}
 
 
 def qa_prompt(version: str) -> PromptTemplate:

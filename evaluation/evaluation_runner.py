@@ -307,7 +307,7 @@ def main(argv: list[str] | None = None) -> int:
         "--provider", default="mock", choices=["mock", "openai", "anthropic", "gemini"]
     )
     parser.add_argument("--model", default=None)
-    parser.add_argument("--prompt-version", default="v2", choices=["v1", "v2"])
+    parser.add_argument("--prompt-version", default="v3", choices=["v1", "v2", "v3"])
     parser.add_argument("--retriever", default=None, choices=["bm25", "char_ngram", "hybrid"])
     parser.add_argument("--cases", default=None, help="comma-separated case IDs (default: all)")
     parser.add_argument(

@@ -27,6 +27,7 @@ REQUIRED_FILES = [
     "src/docintel/grounding.py",
     "prompts/grounded_qa_v1.md",
     "prompts/grounded_qa_v2.md",
+    "prompts/grounded_qa_v3.md",
     "evaluation/test_cases.json",
     "evaluation/evaluation_runner.py",
     "evaluation/human_review_template.csv",
@@ -94,7 +95,7 @@ def check_secrets(files: list[Path]) -> tuple[bool, str]:
 
 
 def check_hygiene(files: list[Path]) -> tuple[bool, str]:
-    rel = [str(p.relative_to(ROOT)) for p in files]
+    rel = [p.relative_to(ROOT).as_posix() for p in files]
     problems = [r for r in rel if r == ".env" or (r.startswith(".env.") and r != ".env.example")]
     problems += [
         r for r in rel if r.lower().endswith(".pdf") and not r.startswith("evaluation/fixtures/")

@@ -18,10 +18,10 @@ from evaluation import evaluation_runner, scoring
 from evaluation.build_fixtures import DOCUMENTS, build_text_pdf
 from tests.conftest import ROOT
 
-CASES = json.loads((ROOT / "evaluation" / "test_cases.json").read_text())["cases"]
-PARAPHRASE = json.loads((ROOT / "evaluation" / "retrieval_paraphrase_cases.json").read_text())[
-    "cases"
-]
+CASES = json.loads((ROOT / "evaluation" / "test_cases.json").read_text(encoding="utf-8"))["cases"]
+PARAPHRASE = json.loads(
+    (ROOT / "evaluation" / "retrieval_paraphrase_cases.json").read_text(encoding="utf-8")
+)["cases"]
 REQUIRED_FIELDS = {
     "id",
     "category",
@@ -182,7 +182,7 @@ def test_offline_evaluation_runner_end_to_end(tmp_path):
     assert code == 0
     runs = list(tmp_path.glob("*.json"))
     assert len(runs) == 1
-    run = json.loads(runs[0].read_text())
+    run = json.loads(runs[0].read_text(encoding="utf-8"))
     assert run["metadata"]["offline"] is True and run["metadata"]["case_count"] == 6
     assert run["metrics"]["errors"] == 0 and run["metrics"]["format_compliance"] == 1.0
     assert (tmp_path / f"{run['metadata']['run_id']}.md").is_file()
