@@ -1,0 +1,35 @@
+{
+  "run_file": "20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3.json",
+  "run_sha256": "10aeb10d6540d75caa8b05cc35cf7cffb176b85ec170f492d9537dc3d9059fcd",
+  "prompt": {
+    "name": "josue_v3",
+    "label_used": "grounded_qa@josue_v3",
+    "source": {
+      "pull_request": 1,
+      "branch": "josue/fix-windows-encoding",
+      "commit": "b0dc869b017d4b7a4d2c5752c0b1bc720a27dae4",
+      "path": "prompts/grounded_qa_v3.md"
+    },
+    "copy": "evaluation/experiments/v3_comparison/prompts/josue_v3/grounded_qa_v3.md",
+    "file_sha256": "8073ae8325f6147c4e4764c77d9f299c5ae706742dfaf1e1556eaee40007d240",
+    "instructions_sha256": "725c73c047a11b6219222c2bada91f618a2cac12e506e34f9bb821bd86d47d06",
+    "case_runs_served": 30
+  },
+  "code": {
+    "git_head": "2a7f74757a46d4d27b3209fe00d877f70ac084eb",
+    "changes_outside_this_experiment": [],
+    "evaluation_runner_sha256": "4526c6a6e1ce40bcb6dc4abef1ef8c446793f71cb29691618ee6bb252543ba9f",
+    "harness_sha256": "31df0fef16015b699e798cf0c7ad5bf4c8d9e96addb0100b24c203d77c13fe97"
+  },
+  "dataset": {
+    "cases_sha256": "5f3f310b7bd66f98753293ce28ff2655f85bc9f48dd22ba70b80a0df7549ae60",
+    "fixtures_sha256": {
+      "harlow_arts_council_audited_statement_2025.pdf": "22b5c13f2bb5bb2209fb8f2d5b99756318c1a29a7819e10064c4ba35d6f6f30b",
+      "harlow_arts_council_chair_letter_2026.pdf": "167a37ecc4d31c0b73758a58c1e33a014afd99fd538b7df00bdd6746f6fcdaf9",
+      "meadowbrook_board_memo_may_2026.pdf": "d55428143ac6c13302ba81976833eb5582f861d7098d0e88bd18baabec03245a",
+      "meadowbrook_renovation_report_q1_2026.pdf": "84aebeb92ed9b41882db4450f8dbd83132ec22662a3f5a1daaccbd1765f56c9b",
+      "pinecrest_board_update_aug_2026.pdf": "27830e975bfbb9296ba271d038c64b6ca8ec8b435b8f5e11792d7e5aa163fc92",
+      "pinecrest_food_services_summary_fy2026.pdf": "f1a2068e1317181a4dcbb3d8dee4d65c559636b05f29b3e7811525a80940d7a9"
+    }
+  }
+}

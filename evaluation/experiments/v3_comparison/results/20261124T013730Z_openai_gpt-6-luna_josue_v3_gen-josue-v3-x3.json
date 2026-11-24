@@ -1,0 +1,2421 @@
+{
+  "metadata": {
+    "run_id": "20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3",
+    "timestamp": "2026-11-24T01:37:30+00:00",
+    "provider": "openai",
+    "model": "gpt-6-luna",
+    "offline": false,
+    "prompt_version": "josue_v3",
+    "retriever": "hybrid",
+    "dataset_version": "generalization-1.0.0",
+    "case_count": 10,
+    "repeats": 3,
+    "judge": false,
+    "settings": {
+      "reasoning_effort": "low",
+      "temperature": null,
+      "max_output_tokens": 4000,
+      "chunk_size": 1000,
+      "chunk_overlap": 150,
+      "top_k": 8,
+      "context_token_budget": 6000,
+      "section_token_budget": 6000
+    },
+    "git_commit": "2a7f747",
+    "versions": {
+      "python": "3.14.4",
+      "openai": "3.51.0",
+      "anthropic": "2.8.0",
+      "google-genai": "3.3.0",
+      "pymupdf": "2.1",
+      "pydantic": "2.14.3",
+      "streamlit": "1.67.0"
+    }
+  },
+  "metrics": {
+    "cases_run": 30,
+    "errors": 0,
+    "format_compliance": 1.0,
+    "overall_pass_rate": 1.0,
+    "answer_accuracy": 1.0,
+    "false_abstention_rate": 0.0,
+    "correct_abstention_rate": null,
+    "conflict_handling_rate": 1.0,
+    "injection_resistance_rate": null,
+    "citation_id_validity": 1.0,
+    "quote_match_rate": 1.0,
+    "heuristic_support_rate": 0.949,
+    "evidence_page_hit_rate": 1.0,
+    "extraction_recall_mean": null,
+    "latency_mean_s": 3.096,
+    "latency_max_s": 4.792,
+    "input_tokens": 71628,
+    "output_tokens": 9174,
+    "cost_usd": 0.006151,
+    "by_category": {
+      "conflicting_evidence": {
+        "cases": 12,
+        "passed": 12,
+        "errors": 0
+      },
+      "direct_factual": {
+        "cases": 6,
+        "passed": 6,
+        "errors": 0
+      },
+      "multi_document": {
+        "cases": 12,
+        "passed": 12,
+        "errors": 0
+      }
+    }
+  },
+  "consistency": {
+    "cases_with_repeats": 10,
+    "outcome_agreement": 1.0,
+    "status_agreement": 0.9
+  },
+  "results": [
+    {
+      "case_id": "GEN-01",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The May 20, 2026 memo reports spending of $702,500 as of May 15, 2026 [S1]. The Q1 progress report gives an earlier figure of $640,000 as of March 31, 2026 [S2].",
+        "claims": [
+          {
+            "statement": "The May 20, 2026 memo reports spending of $702,500 as of May 15, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Spending to date on the clinic renovation is $702,500 as of May 15, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The Q1 progress report gives spending of $640,000 as of March 31, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "Spending to date is $640,000 as of March 31, 2026."
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources report different spending-to-date amounts, with different as-of dates: $702,500 as of May 15, 2026, and $640,000 as of March 31, 2026.",
+            "nature": "context_difference",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p1",
+        "meadowbrook_renovation_report_q1_2026.pdf p1"
+      ],
+      "latency_s": 4.767,
+      "input_tokens": 2440,
+      "output_tokens": 412,
+      "tokens_estimated": false,
+      "cost_usd": 0.00045,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-02",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The chair\u2019s letter reports $86,300 spent as of February 28, 2026 [S1]. The audited statement reports $61,750 as of December 31, 2025 [S2].",
+        "claims": [
+          {
+            "statement": "The chair\u2019s letter reports $86,300 spent on the gallery refurbishment as of February 28, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Spending on the gallery refurbishment reached $86,300 as of February 28, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The audited statement reports $61,750 spent on the gallery refurbishment as of December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "As of December 31, 2025, the Council had spent $61,750 on the gallery refurbishment project"
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "Reported spending differs by reporting date: $61,750 as of December 31, 2025, and $86,300 as of February 28, 2026.",
+            "nature": "context_difference",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p2",
+        "harlow_arts_council_chair_letter_2026.pdf p2"
+      ],
+      "latency_s": 3.181,
+      "input_tokens": 2372,
+      "output_tokens": 327,
+      "tokens_estimated": false,
+      "cost_usd": 0.00023735000000000002,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-03",
+      "category": "direct_factual",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 1,
+        "valid_citations": 1,
+        "quotes_checked": 1,
+        "quotes_found": 1,
+        "assessed": 1,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The Pinecrest food services reserve fund balance was $2.4 million as of June 30, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The food services reserve fund balance was $2.4 million as of June 30, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The food services reserve fund balance is $2.4 million as of June 30, 2026"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_food_services_summary_fy2026.pdf p1"
+      ],
+      "latency_s": 2.843,
+      "input_tokens": 2357,
+      "output_tokens": 198,
+      "tokens_estimated": false,
+      "cost_usd": 0.00033470000000000006,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-04",
+      "category": "direct_factual",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 1,
+        "valid_citations": 1,
+        "quotes_checked": 1,
+        "quotes_found": 1,
+        "assessed": 1,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The Harlow Arts Council\u2019s endowment was valued at $3.6 million as of March 31, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The endowment was valued at $3.6 million as of March 31, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The endowment was valued at $3.6 million as of March 31, 2026"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_chair_letter_2026.pdf p2"
+      ],
+      "latency_s": 2.243,
+      "input_tokens": 2371,
+      "output_tokens": 174,
+      "tokens_estimated": false,
+      "cost_usd": 0.00016075,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-05",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The currently approved renovation budget is $1,240,000, approved on May 18, 2026; it replaces the $1,150,000 budget approved on January 12, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The currently approved renovation budget is $1,240,000, approved on May 18, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "On May 18, 2026 the board approved Budget Revision No. 1, which raises the renovation budget to $1,240,000."
+              }
+            ]
+          },
+          {
+            "statement": "The $1,240,000 budget replaces the $1,150,000 budget approved on January 12, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The revised budget replaces the budget of $1,150,000 approved on January 12, 2026."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p1"
+      ],
+      "latency_s": 3.388,
+      "input_tokens": 2438,
+      "output_tokens": 279,
+      "tokens_estimated": false,
+      "cost_usd": 0.00021994999999999998,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-06",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 3,
+        "valid_citations": 3,
+        "quotes_checked": 3,
+        "quotes_found": 3,
+        "assessed": 3,
+        "likely_supported": 3,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "Pinecrest's fiscal year 2027 food services budget is $3,180,000, adopted as an amendment on August 26, 2026. It supersedes the earlier $3,050,000 budget adopted on June 10, 2026. [S2, S1]",
+        "claims": [
+          {
+            "statement": "The amended fiscal year 2027 food services budget is $3,180,000, adopted on August 26, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "On August 26, 2026 the board adopted an amended fiscal year 2027 food services budget of $3,180,000."
+              }
+            ]
+          },
+          {
+            "statement": "The amended budget supersedes the earlier $3,050,000 budget adopted on June 10, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The amended budget supersedes the budget adopted on June 10, 2026."
+              },
+              {
+                "source_id": "S1",
+                "quote": "On June 10, 2026 the board adopted a fiscal year 2027 food services budget of $3,050,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_board_update_aug_2026.pdf p1",
+        "pinecrest_food_services_summary_fy2026.pdf p2"
+      ],
+      "latency_s": 3.29,
+      "input_tokens": 2358,
+      "output_tokens": 376,
+      "tokens_estimated": false,
+      "cost_usd": 0.00026072000000000004,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-07",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "review",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [
+          "026"
+        ],
+        "warnings": [
+          "Figures in the answer that do not appear in any provided source: 026"
+        ]
+      },
+      "output": {
+        "status": "answered",
+        "answer": "Pinecrest pays Tallgrass Software $4,000 per month under its agreement, which is $48,000 annually; the FY2026 summary also reports an annual cost of $48,000. [S1, S2]",
+        "claims": [
+          {
+            "statement": "Pinecrest pays Tallgrass Software $4,000 per month under its agreement.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "the district pays a monthly fee of $4,000"
+              }
+            ]
+          },
+          {
+            "statement": "The FY2026 annual cost of the Tallgrass service was $48,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The annual cost of the Tallgrass service in fiscal year 2026 was $48,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_board_update_aug_2026.pdf p1",
+        "pinecrest_food_services_summary_fy2026.pdf p2"
+      ],
+      "latency_s": 2.97,
+      "input_tokens": 2358,
+      "output_tokens": 248,
+      "tokens_estimated": false,
+      "cost_usd": 0.00019672,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-08",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The Harlow Arts Council\u2019s total revenue for 2025 was $2,180,000 ($2.18 million). [S1, S2]",
+        "claims": [
+          {
+            "statement": "The Harlow Arts Council\u2019s total revenue for 2025 was $2,180,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Total revenue $2,180,000"
+              },
+              {
+                "source_id": "S2",
+                "quote": "Our revenue reached $2.18 million"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p1",
+        "harlow_arts_council_chair_letter_2026.pdf p1"
+      ],
+      "latency_s": 2.387,
+      "input_tokens": 2371,
+      "output_tokens": 219,
+      "tokens_estimated": false,
+      "cost_usd": 0.00018325,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-09",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 3,
+        "valid_citations": 3,
+        "quotes_checked": 3,
+        "quotes_found": 3,
+        "assessed": 3,
+        "likely_supported": 3,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The Chair\u2019s letter reports an operating deficit of $45,000 for the year ended December 31, 2025 [S1]. The audited financial statement reports an operating surplus of $310,000 for that same period [S2].",
+        "claims": [
+          {
+            "statement": "The Chair\u2019s letter reports an operating deficit of $45,000 for the year ended December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The Council recorded an operating deficit of $45,000 for the year ended December 31, 2025."
+              }
+            ]
+          },
+          {
+            "statement": "The audited financial statement reports an operating surplus of $310,000 for the year ended December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "Operating surplus $310,000"
+              },
+              {
+                "source_id": "S2",
+                "quote": "Period: year ended December 31, 2025"
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources report different operating results for the same year: a $45,000 deficit and a $310,000 surplus.",
+            "nature": "direct_contradiction",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p1",
+        "harlow_arts_council_chair_letter_2026.pdf p1"
+      ],
+      "latency_s": 3.53,
+      "input_tokens": 2371,
+      "output_tokens": 411,
+      "tokens_estimated": false,
+      "cost_usd": 0.00027925,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-10",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The May 2026 board memo says the state capital grant is $350,000 [S1]. The Q1 2026 renovation report says it is $300,000 [S2]. The sources do not explain the difference.",
+        "claims": [
+          {
+            "statement": "The May 2026 board memo lists the state capital grant as $350,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The state capital grant awarded on February 2, 2026 is $350,000."
+              }
+            ]
+          },
+          {
+            "statement": "The Q1 2026 renovation report lists the state capital grant as $300,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The state capital grant awarded on February 2, 2026 is $300,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources give different amounts for the state capital grant awarded on February 2, 2026: $350,000 and $300,000.",
+            "nature": "direct_contradiction",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p2",
+        "meadowbrook_renovation_report_q1_2026.pdf p2"
+      ],
+      "latency_s": 2.763,
+      "input_tokens": 2440,
+      "output_tokens": 292,
+      "tokens_estimated": false,
+      "cost_usd": 0.00022665,
+      "repeat": 0
+    },
+    {
+      "case_id": "GEN-01",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The May 20, 2026 memo reports spending of $702,500 as of May 15, 2026 [S1]. The Q1 progress report reports spending of $640,000 as of March 31, 2026 [S2].",
+        "claims": [
+          {
+            "statement": "Spending was $702,500 as of May 15, 2026, according to the May 20, 2026 memo.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Spending to date on the clinic renovation is $702,500 as of May 15, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "Spending was $640,000 as of March 31, 2026, according to the Q1 progress report.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "Spending to date is $640,000 as of March 31, 2026."
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The reports give different spending-to-date amounts, with different reporting dates: $702,500 as of May 15, 2026, and $640,000 as of March 31, 2026.",
+            "nature": "context_difference",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p1",
+        "meadowbrook_renovation_report_q1_2026.pdf p1"
+      ],
+      "latency_s": 3.806,
+      "input_tokens": 2440,
+      "output_tokens": 353,
+      "tokens_estimated": false,
+      "cost_usd": 0.00020117000000000003,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-02",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The chair\u2019s letter reports spending of $86,300 as of February 28, 2026 [S1]. The audited statement reports $61,750 as of December 31, 2025 [S2].",
+        "claims": [
+          {
+            "statement": "The chair\u2019s letter reports that gallery refurbishment spending reached $86,300 as of February 28, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Spending on the gallery refurbishment reached $86,300 as of February 28, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The audited statement reports that the Council had spent $61,750 on the gallery refurbishment as of December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "As of December 31, 2025, the Council had spent $61,750 on the gallery refurbishment project"
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources give different spending totals for the gallery refurbishment, with different as-of dates: $61,750 as of December 31, 2025, and $86,300 as of February 28, 2026.",
+            "nature": "context_difference",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p2",
+        "harlow_arts_council_chair_letter_2026.pdf p2"
+      ],
+      "latency_s": 4.792,
+      "input_tokens": 2372,
+      "output_tokens": 439,
+      "tokens_estimated": false,
+      "cost_usd": 0.00024349000000000002,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-03",
+      "category": "direct_factual",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "partially_answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 1,
+        "valid_citations": 1,
+        "quotes_checked": 1,
+        "quotes_found": 1,
+        "assessed": 1,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "partially_answered",
+        "answer": "The latest reported reserve fund balance is $2.4 million as of June 30, 2026. The documents do not provide a later balance. [S1]",
+        "claims": [
+          {
+            "statement": "The food services reserve fund balance was $2.4 million as of June 30, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The food services reserve fund balance is $2.4 million as of June 30, 2026"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [
+          "The reserve fund balance after June 30, 2026, if the question means the balance at a later current date."
+        ],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_food_services_summary_fy2026.pdf p1"
+      ],
+      "latency_s": 2.764,
+      "input_tokens": 2357,
+      "output_tokens": 234,
+      "tokens_estimated": false,
+      "cost_usd": 0.00014084000000000001,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-04",
+      "category": "direct_factual",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 1,
+        "valid_citations": 1,
+        "quotes_checked": 1,
+        "quotes_found": 1,
+        "assessed": 1,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The Harlow Arts Council\u2019s endowment was valued at $3.6 million as of March 31, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The endowment was valued at $3.6 million as of March 31, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The endowment was valued at $3.6 million as of March 31, 2026"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_chair_letter_2026.pdf p2"
+      ],
+      "latency_s": 2.285,
+      "input_tokens": 2371,
+      "output_tokens": 219,
+      "tokens_estimated": false,
+      "cost_usd": 0.00013348,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-05",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The currently approved renovation budget is $1,240,000, approved on May 18, 2026. It replaces the $1,150,000 budget approved on January 12, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The currently approved renovation budget is $1,240,000, approved on May 18, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "On May 18, 2026 the board approved Budget Revision No. 1, which raises the renovation budget to $1,240,000."
+              }
+            ]
+          },
+          {
+            "statement": "The revised budget replaces the $1,150,000 budget approved on January 12, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The revised budget replaces the budget of $1,150,000 approved on January 12, 2026."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p1"
+      ],
+      "latency_s": 3.146,
+      "input_tokens": 2438,
+      "output_tokens": 341,
+      "tokens_estimated": false,
+      "cost_usd": 0.00019515,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-06",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 3,
+        "valid_citations": 3,
+        "quotes_checked": 3,
+        "quotes_found": 3,
+        "assessed": 3,
+        "likely_supported": 3,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "Pinecrest\u2019s current fiscal year 2027 food services budget is $3,180,000, adopted on August 26, 2026. It supersedes the $3,050,000 budget adopted on June 10, 2026. [S2]",
+        "claims": [
+          {
+            "statement": "The amended fiscal year 2027 food services budget is $3,180,000, adopted on August 26, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "On August 26, 2026 the board adopted an amended fiscal year 2027 food services budget of $3,180,000."
+              }
+            ]
+          },
+          {
+            "statement": "The amended budget supersedes the $3,050,000 budget adopted on June 10, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The amended budget supersedes the budget adopted on June 10, 2026."
+              },
+              {
+                "source_id": "S1",
+                "quote": "On June 10, 2026 the board adopted a fiscal year 2027 food services budget of $3,050,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_board_update_aug_2026.pdf p1",
+        "pinecrest_food_services_summary_fy2026.pdf p2"
+      ],
+      "latency_s": 2.956,
+      "input_tokens": 2358,
+      "output_tokens": 306,
+      "tokens_estimated": false,
+      "cost_usd": 0.00017685,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-07",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "review",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [
+          "026"
+        ],
+        "warnings": [
+          "Figures in the answer that do not appear in any provided source: 026"
+        ]
+      },
+      "output": {
+        "status": "answered",
+        "answer": "Pinecrest pays Tallgrass Software $4,000 per month under its agreement [S1]. The FY2026 annual cost was $48,000 [S2].",
+        "claims": [
+          {
+            "statement": "Under its agreement with Tallgrass Software, Pinecrest pays a monthly fee of $4,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "the district pays a monthly fee of $4,000"
+              }
+            ]
+          },
+          {
+            "statement": "The annual cost of the Tallgrass service in fiscal year 2026 was $48,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The annual cost of the Tallgrass service in fiscal year 2026 was $48,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_board_update_aug_2026.pdf p1",
+        "pinecrest_food_services_summary_fy2026.pdf p2"
+      ],
+      "latency_s": 3.134,
+      "input_tokens": 2358,
+      "output_tokens": 350,
+      "tokens_estimated": false,
+      "cost_usd": 0.00019884999999999998,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-08",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The Harlow Arts Council\u2019s total revenue for 2025 was $2,180,000 ($2.18 million). [S1, S2]",
+        "claims": [
+          {
+            "statement": "The Harlow Arts Council\u2019s total revenue for 2025 was $2,180,000 ($2.18 million).",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Total revenue $2,180,000"
+              },
+              {
+                "source_id": "S2",
+                "quote": "Our revenue reached $2.18 million"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p1",
+        "harlow_arts_council_chair_letter_2026.pdf p1"
+      ],
+      "latency_s": 2.224,
+      "input_tokens": 2371,
+      "output_tokens": 225,
+      "tokens_estimated": false,
+      "cost_usd": 0.00013648,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-09",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The sources give conflicting operating results for 2025: the Chair\u2019s letter reports an operating deficit of $45,000 for the year ended December 31, 2025 [S1], while the audited statement reports an operating surplus of $310,000 for that same period [S2].",
+        "claims": [
+          {
+            "statement": "The Chair\u2019s letter reports an operating deficit of $45,000 for the year ended December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The Council recorded an operating deficit of $45,000 for the year ended December 31, 2025."
+              }
+            ]
+          },
+          {
+            "statement": "The audited statement reports an operating surplus of $310,000 for the year ended December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "Operating surplus $310,000"
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The Chair\u2019s letter reports a $45,000 operating deficit, while the audited statement reports a $310,000 operating surplus for the year ended December 31, 2025.",
+            "nature": "direct_contradiction",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p1",
+        "harlow_arts_council_chair_letter_2026.pdf p1"
+      ],
+      "latency_s": 3.342,
+      "input_tokens": 2371,
+      "output_tokens": 391,
+      "tokens_estimated": false,
+      "cost_usd": 0.00021947999999999998,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-10",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The May 2026 board memo states the grant is $350,000 [S1]. The Q1 2026 renovation report states it is $300,000 [S2]. The documents give different amounts for the grant awarded on February 2, 2026.",
+        "claims": [
+          {
+            "statement": "The May 2026 board memo states that the state capital grant is $350,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The state capital grant awarded on February 2, 2026 is $350,000."
+              }
+            ]
+          },
+          {
+            "statement": "The Q1 2026 renovation report states that the state capital grant is $300,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The state capital grant awarded on February 2, 2026 is $300,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources give different amounts for the state capital grant awarded on February 2, 2026: $350,000 in the May 2026 board memo and $300,000 in the Q1 2026 renovation report.",
+            "nature": "direct_contradiction",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p2",
+        "meadowbrook_renovation_report_q1_2026.pdf p2"
+      ],
+      "latency_s": 3.539,
+      "input_tokens": 2440,
+      "output_tokens": 421,
+      "tokens_estimated": false,
+      "cost_usd": 0.00023517,
+      "repeat": 1
+    },
+    {
+      "case_id": "GEN-01",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The Q1 report says spending was $640,000 as of March 31, 2026 [S2]. The May 2026 memo reports $702,500 as of May 15, 2026 [S1].",
+        "claims": [
+          {
+            "statement": "The Q1 report says renovation spending was $640,000 as of March 31, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "Spending to date is $640,000 as of March 31, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The May memo says renovation spending was $702,500 as of May 15, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Spending to date on the clinic renovation is $702,500 as of May 15, 2026."
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources report different spending-to-date amounts, with different as-of dates: $640,000 as of March 31, 2026, and $702,500 as of May 15, 2026.",
+            "nature": "context_difference",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p1",
+        "meadowbrook_renovation_report_q1_2026.pdf p1"
+      ],
+      "latency_s": 4.173,
+      "input_tokens": 2440,
+      "output_tokens": 407,
+      "tokens_estimated": false,
+      "cost_usd": 0.00022817,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-02",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The chair\u2019s letter reports $86,300 spent as of February 28, 2026 [S1]. The audited statement reports $61,750 spent as of December 31, 2025 [S2].",
+        "claims": [
+          {
+            "statement": "The chair\u2019s letter reports $86,300 spent on the gallery refurbishment as of February 28, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Spending on the gallery refurbishment reached $86,300 as of February 28, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The audited statement reports $61,750 spent on the gallery refurbishment as of December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "As of December 31, 2025, the Council had spent $61,750 on the gallery refurbishment project"
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources report different cumulative spending amounts at different dates: $61,750 as of December 31, 2025, and $86,300 as of February 28, 2026.",
+            "nature": "context_difference",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p2",
+        "harlow_arts_council_chair_letter_2026.pdf p2"
+      ],
+      "latency_s": 3.082,
+      "input_tokens": 2372,
+      "output_tokens": 323,
+      "tokens_estimated": false,
+      "cost_usd": 0.00018549000000000001,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-03",
+      "category": "direct_factual",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 1,
+        "valid_citations": 1,
+        "quotes_checked": 1,
+        "quotes_found": 1,
+        "assessed": 1,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The latest reserve fund balance reported is $2.4 million, as of June 30, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The food services reserve fund balance was $2.4 million as of June 30, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The food services reserve fund balance is $2.4 million as of June 30, 2026"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_food_services_summary_fy2026.pdf p1"
+      ],
+      "latency_s": 2.261,
+      "input_tokens": 2357,
+      "output_tokens": 185,
+      "tokens_estimated": false,
+      "cost_usd": 0.00011634,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-04",
+      "category": "direct_factual",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 1,
+        "valid_citations": 1,
+        "quotes_checked": 1,
+        "quotes_found": 1,
+        "assessed": 1,
+        "likely_supported": 1,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The endowment was valued at $3.6 million as of March 31, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The endowment was valued at $3.6 million as of March 31, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The endowment was valued at $3.6 million as of March 31, 2026"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_chair_letter_2026.pdf p2"
+      ],
+      "latency_s": 2.602,
+      "input_tokens": 2371,
+      "output_tokens": 195,
+      "tokens_estimated": false,
+      "cost_usd": 0.00012148000000000001,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-05",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The approved renovation budget is $1,240,000. Budget Revision No. 1, approved May 18, 2026, replaces the earlier $1,150,000 budget approved January 12, 2026. [S1]",
+        "claims": [
+          {
+            "statement": "The approved renovation budget is $1,240,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "which raises the renovation budget to $1,240,000."
+              }
+            ]
+          },
+          {
+            "statement": "The $1,240,000 budget approved May 18, 2026, replaces the earlier $1,150,000 budget approved January 12, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The revised budget replaces the budget of $1,150,000 approved on January 12, 2026."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p1"
+      ],
+      "latency_s": 2.965,
+      "input_tokens": 2438,
+      "output_tokens": 322,
+      "tokens_estimated": false,
+      "cost_usd": 0.00018565,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-06",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "Pinecrest's fiscal year 2027 food services budget is $3,180,000, adopted on August 26, 2026. The amended budget supersedes the $3,050,000 budget adopted on June 10, 2026. [S2, S1]",
+        "claims": [
+          {
+            "statement": "The board adopted an amended fiscal year 2027 food services budget of $3,180,000 on August 26, 2026, and it supersedes the budget adopted on June 10, 2026.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "On August 26, 2026 the board adopted an amended fiscal year 2027 food services budget of $3,180,000. The amended budget supersedes the budget adopted on June 10, 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The superseded budget adopted on June 10, 2026 was $3,050,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "On June 10, 2026 the board adopted a fiscal year 2027 food services budget of $3,050,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_board_update_aug_2026.pdf p1",
+        "pinecrest_food_services_summary_fy2026.pdf p2"
+      ],
+      "latency_s": 3.483,
+      "input_tokens": 2358,
+      "output_tokens": 360,
+      "tokens_estimated": false,
+      "cost_usd": 0.00020385,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-07",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "review",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [
+          "026"
+        ],
+        "warnings": [
+          "Figures in the answer that do not appear in any provided source: 026"
+        ]
+      },
+      "output": {
+        "status": "answered",
+        "answer": "Pinecrest pays Tallgrass Software $4,000 per month for its meal-service technology platform [S1]. The FY2026 annual cost was $48,000 [S2].",
+        "claims": [
+          {
+            "statement": "Pinecrest pays Tallgrass Software $4,000 per month for the meal-service technology platform.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "the district pays a monthly fee of $4,000 for the meal-service technology platform."
+              }
+            ]
+          },
+          {
+            "statement": "The annual cost of the Tallgrass service in fiscal year 2026 was $48,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The annual cost of the Tallgrass service in fiscal year 2026 was $48,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "pinecrest_board_update_aug_2026.pdf p1",
+        "pinecrest_food_services_summary_fy2026.pdf p2"
+      ],
+      "latency_s": 2.047,
+      "input_tokens": 2358,
+      "output_tokens": 190,
+      "tokens_estimated": false,
+      "cost_usd": 0.00011884999999999999,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-08",
+      "category": "multi_document",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "answered",
+        "status_ok": true,
+        "facts_matched": 1,
+        "facts_total": 1,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 0,
+        "conflict_nature_ok": null,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "answered",
+        "answer": "The Harlow Arts Council's total revenue for 2025 was $2,180,000 ($2.18 million). [S1, S2]",
+        "claims": [
+          {
+            "statement": "The Harlow Arts Council's total revenue for 2025 was $2,180,000 ($2.18 million).",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "Total revenue $2,180,000"
+              },
+              {
+                "source_id": "S2",
+                "quote": "Our revenue reached $2.18 million"
+              }
+            ]
+          }
+        ],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "high"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p1",
+        "harlow_arts_council_chair_letter_2026.pdf p1"
+      ],
+      "latency_s": 1.963,
+      "input_tokens": 2371,
+      "output_tokens": 185,
+      "tokens_estimated": false,
+      "cost_usd": 0.00011648000000000001,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-09",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "review",
+        "total_citations": 4,
+        "valid_citations": 4,
+        "quotes_checked": 4,
+        "quotes_found": 4,
+        "assessed": 4,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The Chair\u2019s letter reports an operating deficit of $45,000 for the year ended December 31, 2025 [S1]. The audited financial statement reports an operating surplus of $310,000 for that same year [S2]. The documents give conflicting operating results.",
+        "claims": [
+          {
+            "statement": "The Chair\u2019s letter reports an operating deficit of $45,000 for the year ended December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The Council recorded an operating deficit of $45,000 for the year ended December 31, 2025."
+              }
+            ]
+          },
+          {
+            "statement": "The audited financial statement reports an operating surplus of $310,000 for the year ended December 31, 2025.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "Operating surplus $310,000"
+              }
+            ]
+          },
+          {
+            "statement": "The documents give conflicting operating results for 2025.",
+            "claim_type": "inference",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "operating deficit of $45,000"
+              },
+              {
+                "source_id": "S2",
+                "quote": "Operating surplus $310,000"
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "For the year ended December 31, 2025, the Chair\u2019s letter reports a $45,000 operating deficit, while the audited financial statement reports a $310,000 operating surplus.",
+            "nature": "direct_contradiction",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "harlow_arts_council_audited_statement_2025.pdf p1",
+        "harlow_arts_council_chair_letter_2026.pdf p1"
+      ],
+      "latency_s": 3.829,
+      "input_tokens": 2371,
+      "output_tokens": 477,
+      "tokens_estimated": false,
+      "cost_usd": 0.00026248,
+      "repeat": 2
+    },
+    {
+      "case_id": "GEN-10",
+      "category": "conflicting_evidence",
+      "task": "qa",
+      "error": null,
+      "score": {
+        "status": "conflicting_evidence",
+        "status_ok": true,
+        "facts_matched": 2,
+        "facts_total": 2,
+        "missing_facts": [],
+        "facts_ok": true,
+        "answerable": true,
+        "abstained": false,
+        "forbidden_hits": [],
+        "fabricated_ids": [],
+        "forbidden_ids_cited": [],
+        "canary_leak": false,
+        "safety_ok": true,
+        "conflicts_reported": 1,
+        "conflict_nature_ok": true,
+        "evidence_hit": true,
+        "pass": true
+      },
+      "grounding": {
+        "verdict": "grounded",
+        "total_citations": 2,
+        "valid_citations": 2,
+        "quotes_checked": 2,
+        "quotes_found": 2,
+        "assessed": 2,
+        "likely_supported": 2,
+        "unknown_source_ids": [],
+        "unsupported_numbers": [],
+        "warnings": []
+      },
+      "output": {
+        "status": "conflicting_evidence",
+        "answer": "The May 2026 board memo states the state capital grant is $350,000 [S1]. The Q1 2026 renovation report states it is $300,000 [S2]. The documents do not explain the difference.",
+        "claims": [
+          {
+            "statement": "The May 2026 board memo gives the state capital grant as $350,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S1",
+                "quote": "The state capital grant awarded on February 2, 2026 is $350,000."
+              }
+            ]
+          },
+          {
+            "statement": "The Q1 2026 renovation report gives the state capital grant as $300,000.",
+            "claim_type": "fact",
+            "citations": [
+              {
+                "source_id": "S2",
+                "quote": "The state capital grant awarded on February 2, 2026 is $300,000."
+              }
+            ]
+          }
+        ],
+        "conflicts": [
+          {
+            "description": "The sources give different amounts for the state capital grant awarded on February 2, 2026; neither explains the discrepancy.",
+            "nature": "direct_contradiction",
+            "source_ids": [
+              "S1",
+              "S2"
+            ]
+          }
+        ],
+        "missing_information": [],
+        "confidence": "low"
+      },
+      "cited_pages": [
+        "meadowbrook_board_memo_may_2026.pdf p2",
+        "meadowbrook_renovation_report_q1_2026.pdf p2"
+      ],
+      "latency_s": 3.138,
+      "input_tokens": 2440,
+      "output_tokens": 315,
+      "tokens_estimated": false,
+      "cost_usd": 0.00018217000000000003,
+      "repeat": 2
+    }
+  ]
+}
