@@ -6,13 +6,16 @@ import json
 
 import httpx2
 import pytest
+from pydantic import SecretStr
 
 from docintel.config import Settings, get_api_key
+from docintel.credentials import Credential
 from docintel.llm_client import (
     AnthropicProvider,
     GeminiProvider,
     LLMAuthenticationError,
     LLMBudgetExceededError,
+    LLMConfigurationError,
     LLMQuotaError,
     LLMRateLimitError,
     LLMResponseFormatError,
@@ -153,15 +156,20 @@ def test_cost_estimates_use_catalog_prices():
 # ------------------------------------------------------------------ factory and keys
 
 
-def test_factory_falls_back_to_offline_without_key():
+def test_factory_falls_back_to_offline_without_key(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "server-env-key-must-not-be-used-0000")
     status = create_provider(Settings(provider="openai"), allow_offline_fallback=True)
-    assert status.is_fallback and "OPENAI_API_KEY" in status.fallback_reason
+    assert status.is_fallback and "No OpenAI API key" in status.fallback_reason
     assert status.provider.is_offline
 
 
-def test_factory_raises_without_key_when_fallback_disabled():
-    with pytest.raises(Exception, match="OPENAI_API_KEY"):
+def test_factory_raises_without_key_when_fallback_disabled(monkeypatch):
+    """Adapters never look up a key themselves, even when the server environment has one."""
+    monkeypatch.setenv("OPENAI_API_KEY", "server-env-key-must-not-be-used-0000")
+    with pytest.raises(LLMConfigurationError, match="No OpenAI API key"):
         create_provider(Settings(provider="openai"))
+    with pytest.raises(LLMConfigurationError, match="No OpenAI API key"):
+        OpenAIProvider("gpt-6-luna", Settings(provider="openai"))
 
 
 def test_api_keys_are_secret_and_never_in_settings():
@@ -524,3 +532,288 @@ def test_gemini_rate_limit_is_mapped_and_retried():
     with pytest.raises(LLMRateLimitError):
         provider.generate(request())
     assert calls["n"] == 2
+
+
+# ------------------------------------------------------------------ bring your own key
+
+SESSION_KEY = "user-session-key-for-tests-0001"
+# What a careless server environment could hold. None of it may reach a session-key request.
+SERVER_ENV = {
+    "OPENAI_API_KEY": "server-env-key-must-not-be-used-0000",
+    "OPENAI_ADMIN_KEY": "server-env-admin-key-must-not-be-used",
+    "OPENAI_ORG_ID": "org-server-operator",
+    "OPENAI_PROJECT_ID": "proj-server-operator",
+    "OPENAI_BASE_URL": "https://operator-proxy.invalid/v1",
+    "ANTHROPIC_API_KEY": "server-env-anthropic-key-00000000",
+    "ANTHROPIC_AUTH_TOKEN": "server-env-anthropic-token-0000000",
+    "ANTHROPIC_BASE_URL": "https://operator-proxy.invalid",
+    "GEMINI_API_KEY": "server-env-gemini-key-000000000000",
+    "GOOGLE_API_KEY": "server-env-google-key-000000000000",
+    "GOOGLE_GENAI_USE_VERTEXAI": "true",
+}
+SERVER_VALUES = [v for k, v in SERVER_ENV.items() if k != "GOOGLE_GENAI_USE_VERTEXAI"]
+ANTHROPIC_OK = {
+    "id": "msg_1",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-haiku-5-5",
+    "content": [{"type": "text", "text": json.dumps(VALID_QA)}],
+    "stop_reason": "end_turn",
+    "stop_sequence": None,
+    "usage": {"input_tokens": 10, "output_tokens": 5},
+}
+GEMINI_OK = {
+    "candidates": [
+        {
+            "content": {"parts": [{"text": json.dumps(VALID_QA)}], "role": "model"},
+            "finishReason": "STOP",
+        }
+    ],
+    "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 5},
+}
+
+
+def session_credential(provider: str) -> Credential:
+    return Credential(provider, SecretStr(SESSION_KEY), "session")
+
+
+def mock_http(handler):
+    return httpx2.Client(transport=httpx2.MockTransport(handler))
+
+
+def recorder(response_json, status=200):
+    seen: dict = {}
+
+    def handler(req):
+        seen.update(method=req.method, url=str(req.url), headers=dict(req.headers))
+        return httpx2.Response(status, json=response_json)
+
+    return seen, handler
+
+
+@pytest.fixture
+def server_env(monkeypatch):
+    for name, value in SERVER_ENV.items():
+        monkeypatch.setenv(name, value)
+
+
+def assert_no_server_values(seen: dict) -> None:
+    sent = f"{seen['url']} {seen['headers']}"
+    assert not [value for value in SERVER_VALUES if value in sent]
+
+
+def test_openai_session_key_client_ignores_the_server_environment(server_env):
+    seen, handler = recorder(openai_response())
+    provider = OpenAIProvider(
+        "gpt-6-luna",
+        Settings(provider="openai"),
+        credential=session_credential("openai"),
+        http_client=mock_http(handler),
+    )
+    provider.generate(request())
+    headers = {k.lower(): v for k, v in seen["headers"].items()}
+    assert seen["url"].startswith("https://api.openai.com/v1/")
+    assert headers["authorization"] == f"Bearer {SESSION_KEY}"
+    assert "openai-organization" not in headers and "openai-project" not in headers
+    assert provider.client.admin_api_key is None
+    assert_no_server_values(seen)
+
+
+def test_anthropic_session_key_client_ignores_the_server_environment(server_env):
+    pytest.importorskip("anthropic")
+    seen, handler = recorder(ANTHROPIC_OK)
+    AnthropicProvider(
+        "claude-haiku-5-5",
+        Settings(provider="anthropic"),
+        credential=session_credential("anthropic"),
+        http_client=mock_http(handler),
+    ).generate(request())
+    headers = {k.lower(): v for k, v in seen["headers"].items()}
+    assert seen["url"].startswith("https://api.anthropic.com/v1/messages")
+    # anthropic 2.x sends the key as "Authorization: Bearer"; older versions used x-api-key.
+    carriers = sorted(name for name, value in headers.items() if SESSION_KEY in value)
+    assert carriers in (["authorization"], ["x-api-key"])
+    assert_no_server_values(seen)
+
+
+def test_gemini_session_key_client_ignores_the_server_environment(server_env):
+    pytest.importorskip("google.genai")
+    seen, handler = recorder(GEMINI_OK)
+    GeminiProvider(
+        "gemini-3.1-flash-lite",
+        Settings(provider="gemini"),
+        credential=session_credential("gemini"),
+        http_client=mock_http(handler),
+    ).generate(request())
+    headers = {k.lower(): v for k, v in seen["headers"].items()}
+    assert "generativelanguage.googleapis.com" in seen["url"]  # not Vertex AI
+    assert headers.get("x-goog-api-key") == SESSION_KEY or f"key={SESSION_KEY}" in seen["url"]
+    assert_no_server_values(seen)
+
+
+@pytest.mark.parametrize(
+    ("provider_class", "provider", "variable", "value"),
+    [
+        (OpenAIProvider, "openai", "OPENAI_CUSTOM_HEADERS", "X-Operator: yes"),
+        (OpenAIProvider, "openai", "OPENAI_LOG", "debug"),
+        (AnthropicProvider, "anthropic", "ANTHROPIC_CUSTOM_HEADERS", "X-Operator: yes"),
+        (AnthropicProvider, "anthropic", "ANTHROPIC_OPEN_TELEMETRY_TRACES_CONTENT_MODE", "content"),
+    ],
+)
+def test_session_keys_are_refused_while_unoverridable_sdk_settings_are_set(
+    monkeypatch, provider_class, provider, variable, value
+):
+    monkeypatch.setenv(variable, value)
+    calls = []
+    with pytest.raises(LLMConfigurationError, match=variable) as err:
+        provider_class(
+            "model",
+            Settings(provider=provider),
+            credential=session_credential(provider),
+            http_client=mock_http(calls.append),
+        )
+    assert calls == [] and SESSION_KEY not in str(err.value)
+
+
+def test_the_owners_server_key_is_not_affected_by_the_session_key_refusal(monkeypatch):
+    monkeypatch.setenv("OPENAI_LOG", "debug")
+    server = Credential("openai", SecretStr(SESSION_KEY), "server")
+    provider = OpenAIProvider("gpt-6-luna", Settings(provider="openai"), credential=server)
+    assert provider.client.api_key == SESSION_KEY
+
+
+def test_a_key_entered_for_one_provider_is_never_used_for_another():
+    with pytest.raises(LLMConfigurationError, match="another provider"):
+        AnthropicProvider(
+            "claude-haiku-5-5",
+            Settings(provider="anthropic"),
+            credential=session_credential("openai"),
+        )
+
+
+def test_openai_key_check_only_reads_model_information():
+    seen, handler = recorder({"id": "gpt-6-luna", "object": "model", "created": 1, "owned_by": "x"})
+    provider = OpenAIProvider(
+        "gpt-6-luna",
+        Settings(provider="openai"),
+        credential=session_credential("openai"),
+        http_client=mock_http(handler),
+    )
+    provider.check_access()
+    assert seen["method"] == "GET" and seen["url"].endswith("/v1/models/gpt-6-luna")
+    assert provider.requests_made == 1
+
+
+@pytest.mark.parametrize(
+    ("status", "error", "expected", "fragment"),
+    [
+        (
+            401,
+            {"code": "invalid_api_key", "type": "invalid_request_error"},
+            LLMAuthenticationError,
+            "mistyped, revoked or expired",
+        ),
+        (
+            404,
+            {"code": "model_not_found", "type": "invalid_request_error"},
+            LLMConfigurationError,
+            "not available to your OpenAI account",
+        ),
+        (
+            429,
+            {"code": "insufficient_quota", "type": "insufficient_quota"},
+            LLMQuotaError,
+            "credit",
+        ),
+    ],
+)
+def test_key_check_errors_are_clear_and_never_echo_the_key(status, error, expected, fragment):
+    # OpenAI echoes part of a rejected key in its error message.
+    body = {
+        "error": {
+            **error,
+            "message": f"Incorrect API key provided: {SESSION_KEY[:8]}...{SESSION_KEY[-6:]}",
+        }
+    }
+    _, handler = recorder(body, status)
+    provider = OpenAIProvider(
+        "gpt-6-luna",
+        Settings(provider="openai"),
+        credential=session_credential("openai"),
+        http_client=mock_http(handler),
+    )
+    with pytest.raises(expected) as err:
+        provider.check_access()
+    shown = f"{err.value} {err.value.user_message} {err.value!r}"
+    assert fragment in err.value.user_message
+    assert SESSION_KEY[:8] not in shown and SESSION_KEY[-6:] not in shown
+    assert err.value.__cause__ is None and err.value.__suppress_context__
+
+
+def test_anthropic_key_check_and_credit_balance_message():
+    pytest.importorskip("anthropic")
+    seen, ok = recorder(
+        {
+            "type": "model",
+            "id": "claude-haiku-5-5",
+            "display_name": "Haiku",
+            "created_at": "2026-01-01T00:00:00Z",
+        }
+    )
+    AnthropicProvider(
+        "claude-haiku-5-5",
+        Settings(provider="anthropic"),
+        credential=session_credential("anthropic"),
+        http_client=mock_http(ok),
+    ).check_access()
+    assert seen["method"] == "GET" and seen["url"].endswith("/v1/models/claude-haiku-5-5")
+    low_credit = {
+        "type": "error",
+        "error": {
+            "type": "invalid_request_error",
+            "message": "Your credit balance is too low to access the Anthropic API.",
+        },
+    }
+    _, broke = recorder(low_credit, 400)
+    with pytest.raises(LLMQuotaError, match="credit balance"):
+        AnthropicProvider(
+            "claude-haiku-5-5",
+            Settings(provider="anthropic"),
+            credential=session_credential("anthropic"),
+            http_client=mock_http(broke),
+        ).generate(request())
+
+
+def test_gemini_key_check_and_invalid_key_message():
+    pytest.importorskip("google.genai")
+    seen, ok = recorder({"name": "models/gemini-3.1-flash-lite", "displayName": "Flash-Lite"})
+    GeminiProvider(
+        "gemini-3.1-flash-lite",
+        Settings(provider="gemini"),
+        credential=session_credential("gemini"),
+        http_client=mock_http(ok),
+    ).check_access()
+    assert seen["method"] == "GET" and "models/gemini-3.1-flash-lite" in seen["url"]
+    invalid = {
+        "error": {
+            "code": 400,
+            "message": "API key not valid. Please pass a valid API key.",
+            "status": "INVALID_ARGUMENT",
+            "details": [
+                {"@type": "type.googleapis.com/google.rpc.ErrorInfo", "reason": "API_KEY_INVALID"}
+            ],
+        }
+    }
+    _, rejected = recorder(invalid, 400)
+    with pytest.raises(LLMAuthenticationError, match="rejected the API key"):
+        GeminiProvider(
+            "gemini-3.1-flash-lite",
+            Settings(provider="gemini"),
+            credential=session_credential("gemini"),
+            http_client=mock_http(rejected),
+        ).check_access()
+
+
+def test_offline_provider_has_no_key_to_check():
+    with pytest.raises(LLMConfigurationError, match="does not use an API key"):
+        ExtractiveOfflineProvider(Settings(provider="mock")).check_access()

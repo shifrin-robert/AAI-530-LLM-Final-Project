@@ -1,8 +1,17 @@
 # Live Evaluation Guide
 
 This guide covers setting up the OpenAI API for DocIntel AI, capping what it can spend, and running
-the live evaluation in stages. As of 2026-11-14 none of it has been run: no paid API call has been
-made, and every result in the repository comes from the offline baseline.
+the live evaluation in stages.
+
+**Status:** costs below are computed from token counts.
+
+* **2026-11-14:** the core plan below (Steps 6 and 7a to 7c) was run for $0.056.
+* **2026-11-15:** the prompt v3 test was run for $0.032, and the generalization set for v2 and v3
+  for $0.011. v3 then became the default prompt.
+* **Results:** in [EVALUATION_REPORT.md](EVALUATION_REPORT.md), Sections 5, 7.3 and 7.5.
+* **Not yet run:** the human review (7d) and the other models.
+* **Prompt versions in the commands:** every command below passes `--prompt-version` explicitly,
+  so each earlier run can be reproduced exactly. Without the flag, the runner uses v3.
 
 OpenAI dashboard labels below come from OpenAI's documentation, checked on 2026-11-14 (sources at
 the end). Screens change; if a label differs, look for the closest match.
@@ -45,6 +54,7 @@ OpenAI Usage page shows what was actually billed.
 | Stop on account errors | Further calls after a bad key, unknown model or spend limit; no results file is written | DocIntel runner |
 | Request cap per browser session | More than 200 model requests from one app session | `DOCINTEL_MAX_REQUESTS_PER_SESSION` |
 | Offline tests | `python -m pytest` never reads `.env` and never calls an API | `tests/conftest.py` |
+| Bring your own key | The app never uses the `.env` key unless owner mode is on, so a shared deployment can't spend it | `DOCINTEL_KEY_MODE` |
 
 OpenAI says spend-limit enforcement is not instantaneous, so recorded spend can slightly exceed a
 limit. The prepaid balance and the hard limit are the real ceilings. The runner's checks only
@@ -110,6 +120,9 @@ DOCINTEL_MODEL=gpt-6-luna
 OPENAI_API_KEY=<paste the key here>
 ```
 
+The command-line evaluation runner reads this key. The app ignores it unless you also set
+`DOCINTEL_KEY_MODE=owner` (Step 8), so a shared deployment never spends your key.
+
 Check that git ignores the file:
 
 ```bash
@@ -118,7 +131,7 @@ git check-ignore -v .env
 
 It should print the rule that ignores the file (`.gitignore:2:.env`), and `git status` must not list
 `.env`. The test suite stays offline with the key present: `python -m pytest` should still report
-190 passed.
+307 passed.
 
 ## Step 6. Dry run (free)
 
@@ -168,11 +181,40 @@ python -m evaluation.evaluation_runner --provider openai --prompt-version v2 --r
 
 ### 7d. Human review sheet
 
-The sheet is pre-filled with the v2 answers for the team to rate:
+The worksheet is pre-filled with the v2 answers and the outcome of each v2 repeat. The reviewer
+columns are left blank. It is written to `evaluation/human_review/`; instructions are in the
+`README.md` there:
 
 ```bash
-python -m evaluation.make_review_sheet evaluation/results/<run>_v2_live-v2.json
+python -m evaluation.make_review_sheet evaluation/results/<run>_v2_live-v2.json --repeats evaluation/results/<run>_v2_live-v2-x3.json
 ```
+
+### 7e. Scoring audit (free)
+
+Re-score the saved runs with the original and the proposed revised rules. The audit only reads
+`evaluation/results/` and writes to `evaluation/audit/`:
+
+```bash
+python -m evaluation.scoring_audit
+```
+
+### Prompt v3 test (run on 2026-11-15)
+
+Prompt v3 adds one rule for figures reported as of different dates (case CF-02). It is not the
+default and the app does not offer it. It was run with this command, under a separate $0.50
+authorization; the conservative estimate was $0.162 and it cost $0.032:
+
+```bash
+python -m evaluation.evaluation_runner --provider openai --prompt-version v3 --repeats 3 --allow-paid --max-cost-usd 0.5 --tag live-v3-x3
+```
+
+### Generalization set (run on 2026-11-15)
+
+These are 10 new cases, separate from the benchmark, that test whether v3's rule generalizes. v2
+and v3 were each run on them three times. The conservative estimate was $0.081 and the actual cost
+$0.011. v2 passed 26 of 30 case runs and v3 passed 30 of 30. The commands, the criteria fixed in
+advance and the results are in `evaluation/generalization/README.md`. Results are in
+`evaluation/results/generalization/`.
 
 ### Optional model benchmark
 
@@ -185,7 +227,16 @@ their own keys and the same billing precautions with those providers.
 streamlit run app.py
 ```
 
-The sidebar should show OpenAI and `gpt-6-luna`, not "Offline demo mode".
+Give the app the key in one of two ways:
+
+* **Paste it into the sidebar** (**Your OpenAI API key**, then **Use this key**). This is how every
+  other user of the app works, and the key lasts only for that browser session.
+* **Owner mode, on your own computer only:** add `DOCINTEL_KEY_MODE=owner` to `.env` and restart. The
+  app then uses the `.env` key for sessions without their own key. Never use owner mode on a shared
+  deployment.
+
+The sidebar should show "Active model: OpenAI GPT-6 Luna" and whose key is in use, not "Offline demo
+mode". **Check key** confirms the key with one model-information request, which uses no tokens.
 
 * Each question is one model request.
 * Summaries and extractions of long documents make several requests, and the app shows the plan and

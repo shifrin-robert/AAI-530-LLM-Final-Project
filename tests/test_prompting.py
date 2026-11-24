@@ -1,8 +1,12 @@
+import difflib
+import hashlib
+
 import pytest
 
-from docintel.config import PROMPTS_DIR
+from docintel.config import PROMPTS_DIR, QA_PROMPT_VERSIONS, Settings
 from docintel.prompting import (
     PROMPT_CANARY,
+    QA_PROMPTS,
     ConversationTurn,
     PromptError,
     format_history,
@@ -16,6 +20,7 @@ from tests.conftest import passage
 ALL_PROMPTS = [
     "grounded_qa_v1",
     "grounded_qa_v2",
+    "grounded_qa_v3",
     "summarization",
     "summarization_section",
     "summarization_combine",
@@ -132,3 +137,55 @@ def test_task_prompts_include_canary_and_untrusted_data_rule(name):
 
 def test_prompts_directory_contains_only_expected_files():
     assert sorted(p.stem for p in PROMPTS_DIR.glob("*.md")) == sorted(ALL_PROMPTS)
+
+
+# ------------------------------------------------------------------ proposed v3 (not the default)
+
+
+def test_v3_adds_only_the_dated_figures_rule_to_v2():
+    v2, v3 = qa_prompt("v2"), qa_prompt("v3")
+    assert v3.user == v2.user
+    diff = list(difflib.ndiff(v2.system.splitlines(), v3.system.splitlines()))
+    assert not [line for line in diff if line.startswith("- ")]
+    added = " ".join(line[2:].strip() for line in diff if line.startswith("+ "))
+    assert added.startswith("- Figures that change over time")
+    assert "Do not keep only the latest value." in added
+
+
+def test_v3_is_the_default_and_v1_and_v2_remain_available():
+    assert Settings().qa_prompt_version == "v3"
+    assert set(QA_PROMPTS) == set(QA_PROMPT_VERSIONS) == {"v1", "v2", "v3"}
+    for version in QA_PROMPT_VERSIONS:
+        assert Settings(qa_prompt_version=version).qa_prompt_version == version
+        assert qa_prompt(version).version == version
+    with pytest.raises(ValueError):
+        Settings(qa_prompt_version="v4")
+
+    def status(name):
+        return (PROMPTS_DIR / f"{name}.md").read_text(encoding="utf-8").split("---")[1]
+
+    assert "status: default" in status("grounded_qa_v3")
+    assert "status: previous default" in status("grounded_qa_v2")
+
+
+def test_v3_example_does_not_contain_evaluation_answers():
+    system = qa_prompt("v3").system
+    for leaked in ("112,400", "118,900", "September 30", "October 10", "catalog"):
+        assert leaked not in system
+
+
+# The instructions each prompt had when it was evaluated live: v1 and v2 at commit a05820a
+# (2026-11-14), v3 at f02011b (2026-11-15). Only the header may change, or the saved runs no
+# longer describe the prompt.
+EVALUATED_INSTRUCTIONS_SHA256 = {
+    "v1": "0d603ecb339631a9d86eed59f821f5d21dc8326f8784e9765cbd34d4376033eb",
+    "v2": "e11b8949105b153d9eb866a29219186d3ae07b3b5f57eba69726a05c98cfeab8",
+    "v3": "c6a5feecb14ffd47a73369cc75fd44d70c9fa88e900211c8e1180aa8e564da03",
+}
+
+
+@pytest.mark.parametrize("version", sorted(EVALUATED_INSTRUCTIONS_SHA256))
+def test_prompt_instructions_are_the_ones_that_were_evaluated(version):
+    template = qa_prompt(version)
+    digest = hashlib.sha256((template.system + "\n" + template.user).encode("utf-8")).hexdigest()
+    assert digest == EVALUATED_INSTRUCTIONS_SHA256[version], f"{version} changed after its live run"

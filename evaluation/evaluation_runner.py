@@ -33,7 +33,8 @@ from importlib import metadata
 from pathlib import Path
 
 from docintel.comparison import compare_documents
-from docintel.config import FIXTURES_DIR, PROJECT_ROOT, Settings
+from docintel.config import API_KEY_ENV_VARS, FIXTURES_DIR, PROJECT_ROOT, Settings
+from docintel.credentials import server_credential
 from docintel.extraction import extract_information
 from docintel.grounding import GroundingReport
 from docintel.llm_client import (
@@ -47,7 +48,7 @@ from docintel.llm_client import (
 )
 from docintel.model_catalog import estimate_cost_usd
 from docintel.models import JudgeVerdict
-from docintel.prompting import load_prompt
+from docintel.prompting import QA_PROMPTS, load_prompt
 from docintel.qa import answer_question
 from docintel.session import DocumentWorkspace
 from docintel.summarization import summarize_documents
@@ -55,6 +56,17 @@ from evaluation import scoring
 
 CASES_PATH = Path(__file__).resolve().parent / "test_cases.json"
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
+GENERALIZATION_DIR = Path(__file__).resolve().parent / "generalization"
+# name -> (cases file, fixtures folder, default results folder). The generalization set is kept
+# apart from the 40-case benchmark: its own cases, documents and results folder.
+DATASETS = {
+    "benchmark": (CASES_PATH, FIXTURES_DIR, RESULTS_DIR),
+    "generalization": (
+        GENERALIZATION_DIR / "cases.json",
+        FIXTURES_DIR / "generalization",
+        RESULTS_DIR / "generalization",
+    ),
+}
 # Conservative per-case token assumptions used only for the pre-run cost estimate.
 EST_INPUT_TOKENS_PER_CASE = 6_000
 EST_OUTPUT_TOKENS_PER_CASE = 1_500
@@ -110,8 +122,9 @@ def _grounding_summary(report: GroundingReport) -> dict:
 class WorkspaceCache:
     """One fresh workspace per distinct document set, mirroring what a user would upload."""
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, fixtures_dir: Path = FIXTURES_DIR):
         self.settings = settings
+        self.fixtures_dir = fixtures_dir
         self._cache: dict[frozenset[str], DocumentWorkspace] = {}
 
     def get(self, documents: list[str]) -> DocumentWorkspace:
@@ -119,7 +132,7 @@ class WorkspaceCache:
         if key not in self._cache:
             ws = DocumentWorkspace(self.settings)
             for name in documents:
-                result = ws.add_pdf(name, (FIXTURES_DIR / name).read_bytes())
+                result = ws.add_pdf(name, (self.fixtures_dir / name).read_bytes())
                 if not result.ok:
                     raise RuntimeError(f"Fixture {name} failed to load: {result.error}")
             self._cache[key] = ws
@@ -307,7 +320,12 @@ def main(argv: list[str] | None = None) -> int:
         "--provider", default="mock", choices=["mock", "openai", "anthropic", "gemini"]
     )
     parser.add_argument("--model", default=None)
-    parser.add_argument("--prompt-version", default="v2", choices=["v1", "v2"])
+    parser.add_argument(
+        "--prompt-version",
+        default="v3",
+        choices=sorted(QA_PROMPTS),
+        help="QA prompt (default v3; v1 and v2 are kept to reproduce and compare earlier runs)",
+    )
     parser.add_argument("--retriever", default=None, choices=["bm25", "char_ngram", "hybrid"])
     parser.add_argument("--cases", default=None, help="comma-separated case IDs (default: all)")
     parser.add_argument(
@@ -322,11 +340,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--judge", action="store_true", help="add an LLM-as-judge citation check (paid)"
     )
-    parser.add_argument("--out", type=Path, default=RESULTS_DIR)
+    parser.add_argument(
+        "--dataset",
+        default="benchmark",
+        choices=sorted(DATASETS),
+        help="benchmark (40 cases, default) or generalization (separate set of 10 cases)",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="output folder (default: the dataset's results folder)",
+    )
     parser.add_argument("--tag", default="", help="optional label appended to the run ID")
     args = parser.parse_args(argv)
 
-    dataset = load_cases()
+    cases_path, fixtures_dir, results_dir = DATASETS[args.dataset]
+    out_dir = args.out or results_dir
+    dataset = load_cases(cases_path)
     cases = dataset["cases"]
     if args.cases:
         wanted = {c.strip() for c in args.cases.split(",")}
@@ -334,7 +365,8 @@ def main(argv: list[str] | None = None) -> int:
     settings = Settings.from_env().with_overrides(
         provider=args.provider,
         model=args.model,
-        qa_prompt_version=args.prompt_version,
+        # The QA prompt version is passed to every case explicitly (run_case), so proposals such
+        # as v3 can be evaluated without becoming an app setting.
         max_requests_per_session=100_000,
         **({"retriever": args.retriever} if args.retriever else {}),
     )
@@ -361,13 +393,22 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 2
 
+    credential = None
+    if args.provider != "mock":
+        # A local command-line tool: it uses the key of the person running it, from their
+        # environment or .env. It never sees a browser session's key.
+        credential = server_credential(args.provider)
+        if credential is None:
+            var = API_KEY_ENV_VARS[args.provider]
+            print(f"Cannot start: {var} is not set. Add it to your .env file.", file=sys.stderr)
+            return 2
     try:
-        status = create_provider(settings)
+        status = create_provider(settings, credential=credential)
     except LLMError as exc:
         print(f"Cannot start: {exc.user_message}", file=sys.stderr)
         return 2
     provider = status.provider
-    workspaces = WorkspaceCache(settings)
+    workspaces = WorkspaceCache(settings, fixtures_dir)
     results: list[dict] = []
     for repeat in range(args.repeats):
         for case in cases:
@@ -434,8 +475,8 @@ def main(argv: list[str] | None = None) -> int:
         "consistency": scoring.consistency(results),
         "results": results,
     }
-    args.out.mkdir(parents=True, exist_ok=True)
-    json_path = args.out / f"{run_id}.json"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / f"{run_id}.json"
     json_path.write_text(
         json.dumps(
             run,
@@ -444,7 +485,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
         encoding="utf-8",
     )
-    md_path = args.out / f"{run_id}.md"
+    md_path = out_dir / f"{run_id}.md"
     md_path.write_text(render_markdown(run), encoding="utf-8")
     print(f"\nWrote {json_path}\nWrote {md_path}")
     m = run["metrics"]

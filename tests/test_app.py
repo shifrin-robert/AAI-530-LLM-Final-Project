@@ -4,10 +4,15 @@ Each AppTest instance is an independent browser session, which also lets us chec
 documents loaded in one session are not visible in another.
 """
 
+import os
+import sys
+
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from tests.conftest import MSA, ROOT, SCANNED
+from docintel.llm_client import ScriptedProvider
+from docintel.qa import answer_question
+from tests.conftest import MEMO, MSA, ROOT, SCANNED, STATUS
 
 APP = str(ROOT / "app.py")
 TIMEOUT = 60
@@ -105,3 +110,223 @@ def test_sessions_are_isolated_and_clear_session_works(offline_env):
     assert not first.exception
     assert first.session_state.workspace.documents == []
     assert first.session_state.messages == []
+
+
+# ------------------------------------------------------------------ bring your own key
+# Fake keys only. OPENAI_BASE_URL points at a closed local port, so if a key ever slipped through
+# to a real request, the request would fail on this machine instead of reaching a provider.
+
+SERVER_KEY = "server-env-key-must-not-be-used-0000"
+USER_KEY = "user-session-key-for-tests-0001"
+
+
+@pytest.fixture
+def openai_selected(monkeypatch):
+    monkeypatch.setenv("DOCINTEL_PROVIDER", "openai")
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://127.0.0.1:9/v1")
+
+
+@pytest.fixture
+def server_has_key(monkeypatch, openai_selected):
+    """A server whose environment holds the developer's own key, as on a laptop."""
+    monkeypatch.setenv("OPENAI_API_KEY", SERVER_KEY)
+
+
+def everything_shown(at: AppTest) -> str:
+    """All rendered text plus every widget value, to prove a key is never displayed."""
+    values = [str(getattr(w, "value", "")) for w in at.text_input]
+    return all_text(at) + "\n" + "\n".join(values)
+
+
+def enter_key(at: AppTest, key: str, provider: str = "openai") -> AppTest:
+    at.text_input(key=f"key_input_{provider}").input(key)
+    at.button(key=f"key_submit_{provider}").click().run()
+    assert not at.exception, at.exception
+    return at
+
+
+def session_provider(at: AppTest):
+    providers = [p for p, _reason in at.session_state.providers.values()]
+    assert providers, "no provider was built"
+    return providers[-1]
+
+
+def test_byok_never_uses_the_servers_key(server_has_key):
+    at = run_app()
+    provider = session_provider(at)
+    assert provider.is_offline and len(at.session_state.api_keys) == 0
+    text = everything_shown(at)
+    assert "Enter your OpenAI API key above" in text and "Offline demo mode" in text
+    assert SERVER_KEY not in text
+    assert at.text_input(key="key_input_openai").value == ""
+
+
+def test_a_users_key_is_used_for_their_session_only_and_never_shown(openai_selected):
+    at = enter_key(run_app(), USER_KEY)
+    provider = session_provider(at)
+    assert provider.provider_name == "openai" and not provider.is_offline
+    assert provider.client.api_key == USER_KEY  # the SDK client holds this user's key
+    assert at.session_state.api_keys.providers() == ["openai"]
+    text = everything_shown(at)
+    assert "your OpenAI key" in text and "Active model: OpenAI" in text
+    assert USER_KEY not in text
+    assert "key_input_openai" not in at.session_state or not at.session_state["key_input_openai"]
+    assert USER_KEY not in os.environ.values()
+
+
+def test_removing_the_key_drops_it_and_the_client_that_held_it(openai_selected):
+    at = enter_key(run_app(), USER_KEY)
+    at.button(key="remove_key_openai").click().run()
+    assert not at.exception
+    assert len(at.session_state.api_keys) == 0
+    assert session_provider(at).is_offline
+    assert all(p.is_offline for p, _ in at.session_state.providers.values())
+    assert "OpenAI key was removed" in all_text(at)
+
+
+def test_keys_are_isolated_between_sessions_and_never_global(openai_selected):
+    first = enter_key(run_app(), USER_KEY)
+    second = run_app()
+    assert len(second.session_state.api_keys) == 0
+    assert session_provider(second).is_offline
+    assert USER_KEY not in everything_shown(second)
+    assert session_provider(first).client.api_key == USER_KEY
+    assert USER_KEY not in os.environ.values()
+    for name, module in list(sys.modules.items()):
+        if name == "docintel" or name.startswith("docintel."):
+            assert not [v for v in vars(module).values() if USER_KEY in repr(v)], name
+
+
+def test_owner_mode_uses_the_server_key_and_a_users_own_key_takes_precedence(
+    server_has_key, monkeypatch
+):
+    monkeypatch.setenv("DOCINTEL_KEY_MODE", "owner")
+    at = run_app()
+    provider = session_provider(at)
+    assert not provider.is_offline and provider.client.api_key == SERVER_KEY
+    text = everything_shown(at)
+    assert "the server's OpenAI key" in text and "Owner mode" in text
+    assert SERVER_KEY not in text
+    enter_key(at, USER_KEY)
+    assert session_provider(at).client.api_key == USER_KEY
+
+
+def test_key_check_reports_success_and_rejection(openai_selected, monkeypatch):
+    from docintel import llm_client
+
+    monkeypatch.setattr(llm_client.OpenAIProvider, "check_access", lambda self: None)
+    at = enter_key(run_app(), USER_KEY)
+    at.button(key="check_key_openai").click().run()
+    assert "OpenAI accepted the key" in all_text(at)
+
+    def rejected(self):
+        raise llm_client.LLMAuthenticationError(llm_client._rejected_key_message("OpenAI"))
+
+    monkeypatch.setattr(llm_client.OpenAIProvider, "check_access", rejected)
+    at.button(key="check_key_openai").click().run()
+    assert "rejected the API key. It may be mistyped, revoked or expired." in all_text(at)
+    assert USER_KEY not in everything_shown(at)
+
+
+def test_a_key_for_another_provider_is_refused_without_being_shown(openai_selected):
+    wrong = "sk-ant-" + "x" * 20
+    at = enter_key(run_app(), wrong)
+    assert len(at.session_state.api_keys) == 0
+    text = everything_shown(at)
+    assert "looks like an Anthropic key" in text and wrong not in text
+    # The form is still shown, and the refused key must not stay in its field or widget state.
+    assert at.text_input(key="key_input_openai").value == ""
+    assert at.session_state["key_input_openai"] == ""
+
+
+def test_clear_session_also_removes_keys(openai_selected):
+    at = enter_key(run_app(), USER_KEY)
+    button(at, "Load sample documents").click().run()
+    button(at, "Clear everything").click().run()
+    assert not at.exception
+    assert len(at.session_state.api_keys) == 0 and session_provider(at).is_offline
+
+
+def test_session_keys_are_refused_when_the_server_sets_unsafe_sdk_variables(
+    openai_selected, monkeypatch
+):
+    monkeypatch.setenv("OPENAI_CUSTOM_HEADERS", "X-Operator: yes")
+    at = enter_key(run_app(), USER_KEY)
+    assert session_provider(at).is_offline
+    assert "OPENAI_CUSTOM_HEADERS" in all_text(at) and USER_KEY not in everything_shown(at)
+
+
+# ------------------------------------------------------------------ prompt version and conflict labels
+
+
+def prompt_selector(at: AppTest):
+    return next(r for r in at.radio if r.label == "Question-answering prompt")
+
+
+def test_prompt_selector_defaults_to_v3_and_keeps_v1_and_v2(offline_env):
+    at = run_app()
+    assert prompt_selector(at).options == ["v3", "v2", "v1"]
+    assert prompt_selector(at).value == "v3"
+    button(at, "Load sample documents").click().run()
+    question = "What is the monthly service fee in the master services agreement?"
+    at.chat_input[0].set_value(question).run()
+    assert at.session_state.messages[-1]["result"].prompt_label == "grounded_qa@v3"
+    for version in ("v2", "v1"):
+        prompt_selector(at).set_value(version).run()
+        at.chat_input[0].set_value(question).run()
+        assert not at.exception
+        assert at.session_state.messages[-1]["result"].prompt_label == f"grounded_qa@{version}"
+
+
+def test_an_explicit_prompt_setting_is_still_honoured(offline_env, monkeypatch):
+    monkeypatch.setenv("DOCINTEL_QA_PROMPT_VERSION", "v2")
+    assert prompt_selector(run_app()).value == "v2"
+
+
+def test_conflict_labels_are_shown_as_the_models_reading(offline_env, workspace_with):
+    """CF-01: a "context difference" label must not read as proof that the gap is explained."""
+    ws = workspace_with(STATUS, MEMO)
+    question = "What is the planned go-live date for the catalog project?"
+    empty = {
+        "status": "insufficient_evidence",
+        "answer": "-",
+        "claims": [],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "low",
+    }
+    probe = answer_question(ws, ScriptedProvider([empty]), question)
+
+    def source_with(text):
+        return next(p.source_id for p in probe.sources if text in p.text)
+
+    status_id = source_with("go-live date remains November 17, 2026")
+    memo_id = source_with("assumes go-live on December 1, 2026")
+    answer = {
+        "status": "conflicting_evidence",
+        "answer": f"The status report gives November 17, 2026 [{status_id}]. The finance memo's "
+        f"schedule assumes December 1, 2026 [{memo_id}].",
+        "claims": [],
+        "conflicts": [
+            {
+                "description": "The documents give different go-live dates.",
+                "nature": "context_difference",
+                "source_ids": [status_id, memo_id],
+            }
+        ],
+        "missing_information": [],
+        "confidence": "medium",
+    }
+    result = answer_question(ws, ScriptedProvider([answer]), question)
+    at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+    at.session_state["messages"] = [
+        {"id": 1, "question": question, "result": result, "error": None}
+    ]
+    at.session_state["turn_counter"] = 1
+    at.run()
+    assert not at.exception
+    rendered = " ".join(e.proto.body for e in at.get("html"))
+    assert "Model's label: Context difference." in rendered
+    assert "November 17, 2026" in rendered and "December 1, 2026" in rendered
+    assert "Explained by context" not in rendered
+    assert "Labels are the model's classification" in all_text(at)

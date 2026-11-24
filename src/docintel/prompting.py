@@ -159,7 +159,9 @@ def format_document_list(passages: Sequence[SourcePassage]) -> str:
     )
 
 
-QA_PROMPTS = {"v1": "grounded_qa_v1", "v2": "grounded_qa_v2"}
+# v3 is the default (config.QA_PROMPT_VERSIONS); v1 and v2 stay available to reproduce and compare
+# earlier evaluation runs.
+QA_PROMPTS = {"v1": "grounded_qa_v1", "v2": "grounded_qa_v2", "v3": "grounded_qa_v3"}
 
 
 def qa_prompt(version: str) -> PromptTemplate:

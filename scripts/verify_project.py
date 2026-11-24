@@ -27,9 +27,13 @@ REQUIRED_FILES = [
     "src/docintel/grounding.py",
     "prompts/grounded_qa_v1.md",
     "prompts/grounded_qa_v2.md",
+    "prompts/grounded_qa_v3.md",
     "evaluation/test_cases.json",
     "evaluation/evaluation_runner.py",
+    "evaluation/scoring_audit.py",
+    "evaluation/source_relationships.json",
     "evaluation/human_review_template.csv",
+    "evaluation/human_review/README.md",
     "docs/API_SELECTION_REPORT.md",
     "docs/PROJECT_DOCUMENTATION.md",
     "docs/ARCHITECTURE.md",
@@ -42,6 +46,7 @@ REQUIRED_FILES = [
     "docs/REQUIREMENTS_TRACEABILITY.md",
     "docs/TEAM_CONTRIBUTIONS.md",
     "docs/LIVE_EVALUATION_GUIDE.md",
+    "docs/BYOK_SECURITY_REVIEW.md",
 ]
 SECRET_PATTERNS = [
     re.compile(r"sk-(?:proj-|ant-)?[A-Za-z0-9_\-]{24,}"),

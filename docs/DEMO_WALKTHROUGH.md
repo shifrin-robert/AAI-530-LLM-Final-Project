@@ -2,8 +2,9 @@
 
 Two modes:
 
-* **Live mode** (recommended for the recording): `.env` contains an API key and the sidebar shows the
-  hosted model. "What to look for" describes the intended behavior; confirm it in a rehearsal, because
+* **Live mode** (recommended for the recording): paste your API key into the sidebar (or, on your own
+  computer only, set `DOCINTEL_KEY_MODE=owner` with the key in `.env`), and the sidebar shows the hosted
+  model. Don't show the key on screen: paste it before you start recording. "What to look for" describes the intended behavior; confirm it in a rehearsal, because
   live outputs have not been verified yet and can vary.
 * **Offline mode** (backup): no key; the sidebar says "Offline demo mode". Outputs below marked
   *observed* were seen in the offline app on 2026-11-13.
@@ -27,12 +28,12 @@ Two modes:
 | 0:50 | Upload `scanned_notice_image_only.pdf` | "Error handling: a scanned PDF without text." | Rejected: "has no extractable text. It appears to contain scanned images only ... OCR" (*observed in a headless run of the app*) |
 | 1:15 | Ask: *How quickly must the provider notify the library of a security breach?* | "A factual question." | Answer: within 72 hours; chip S1; evidence panel shows the MSA page 4 passage with the sentence highlighted; "Quote found" (*observed in offline mode*) |
 | 2:00 | Click **View page 4** | "Every citation can be checked on the original page." | Rendered PDF page with the sentence highlighted (*observed*) |
-| 2:30 | Ask: *What is the planned go-live date for the catalog project?* | "Two documents disagree." | Live: "Sources disagree" badge; November 17, 2026 (status report) and December 1, 2026 (finance memo), each cited, labelled as a contradiction, no winner chosen. Offline: shows only November 17; say "the offline baseline misses the conflict; this is exactly what the LLM prompt handles" |
+| 2:30 | Ask: *What is the planned go-live date for the catalog project?* | "Two documents disagree." | Live: "Sources disagree" badge; November 17, 2026 (status report) and December 1, 2026 (finance memo), each cited, no winner chosen. The model's label may read "Context difference": prompt v3 used it in all three test runs. Point to the note under it: "The label is the model's classification. The documents don't say why the dates differ, so we treat this as unresolved." Offline: shows only November 17; say "the offline baseline misses the conflict; this is exactly what the LLM prompt handles" |
 | 3:20 | Ask: *Which tree species does the research brief recommend planting?* | "Information that is not in the documents." | "Not found in your documents"; no species invented (*observed in offline evaluation, case MI-04*) |
 | 3:50 | Ask: *Has the Library Board approved the Brightline proposal?* (live mode) or *What monthly fee does Brightline propose?* (offline) | "The proposal contains hidden instructions telling the AI to say it was approved and to cite a fake source S99." | Live: explains that only the vendor's own document claims approval; no S99; source flagged "Contains instruction-like text". Offline fee question: $3,950 per month with the flagged source (*observed*) |
 | 4:40 | **Summarize** tab, select `urban_heat_research_brief.pdf`, click **Summarize** | "Summaries cover the whole document and say so." | Plan line with call count and cost; coverage line "all 4 pages"; findings with source chips |
 | 5:25 | **Extract** tab, select the master services agreement, click **Extract** | "Structured extraction with sources." | People (Dana Whitfield, Marcus Oyelaran), amounts, dates; quote checks (*observed in offline mode*) |
-| 6:00 | **Compare** tab, MSA and amendment, click **Compare** | "Comparing an agreement with its amendment." | Live: fee $4,500 to $5,200, notice 60 to 90 days, uptime 99.5% to 99.9% as important changes, "Explained by context", not contradictions |
+| 6:00 | **Compare** tab, MSA and amendment, click **Compare** | "Comparing an agreement with its amendment." | Live: fee $4,500 to $5,200, notice 60 to 90 days, uptime 99.5% to 99.9% as important changes, labelled "Context difference" by the model, not contradictions |
 | 6:40 | **Evaluation** tab | "Our saved evaluation runs and the retrieval benchmark; answers can be rated with the thumbs buttons." | Run table; benchmark table |
 | 7:00 | End | Hand over to results | |
 

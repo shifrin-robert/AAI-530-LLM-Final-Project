@@ -1,0 +1,163 @@
+{
+  "experiment": "Comparison of the two prompt v3 proposals (PR #1 and PR #2)",
+  "status": "Experimental. Neither prompt is changed, renamed or made the default here.",
+  "date": "2026-11-24",
+  "prompts": {
+    "robert_v3": {
+      "pull_request": 2,
+      "branch": "byok-authentication",
+      "evaluated_file": {
+        "commit": "f02011bf452085eb37e991b70aa50c59e2912fbe",
+        "path": "prompts/grounded_qa_v3.md",
+        "blob": "1489b78123822213f9e07932f7046cd1e01b226f"
+      },
+      "current_file": {
+        "commit": "2a7f74757a46d4d27b3209fe00d877f70ac084eb",
+        "path": "prompts/grounded_qa_v3.md",
+        "blob": "d1240cd6f1825a3319e3ab660dd18b2595491745",
+        "note": "Only the header changed; the instructions are identical to the evaluated file."
+      },
+      "copy": "evaluation/experiments/v3_comparison/prompts/robert_v3/grounded_qa_v3.md",
+      "file_sha256": "d9be58fea9758d5ab68a869c1be6f1a03f393594c93b311001f6e5f8406c6455",
+      "instructions_sha256": "c6a5feecb14ffd47a73369cc75fd44d70c9fa88e900211c8e1180aa8e564da03",
+      "label_in_file": "grounded_qa@v3"
+    },
+    "josue_v3": {
+      "pull_request": 1,
+      "branch": "josue/fix-windows-encoding",
+      "evaluated_file": {
+        "commit": "b0dc869b017d4b7a4d2c5752c0b1bc720a27dae4",
+        "path": "prompts/grounded_qa_v3.md",
+        "blob": "90197b3ad371215a9b638a68ecc15e59e50ebbe1"
+      },
+      "copy": "evaluation/experiments/v3_comparison/prompts/josue_v3/grounded_qa_v3.md",
+      "file_sha256": "8073ae8325f6147c4e4764c77d9f299c5ae706742dfaf1e1556eaee40007d240",
+      "instructions_sha256": "725c73c047a11b6219222c2bada91f618a2cac12e506e34f9bb821bd86d47d06",
+      "label_in_file": "grounded_qa@v3",
+      "label_in_this_experiment": "grounded_qa@josue_v3"
+    },
+    "shared_base": {
+      "v2_instructions_sha256": "e11b8949105b153d9eb866a29219186d3ae07b3b5f57eba69726a05c98cfeab8",
+      "note": "Both v3 files keep every v2 section unchanged except section 7 and the header."
+    }
+  },
+  "runs": {
+    "generalization": {
+      "v2": {
+        "file": "evaluation/results/generalization/20261115T060208Z_openai_gpt-6-luna_v2_gen-v2-x3.json",
+        "sha256": "e800c9e1d43460357a4c6ccca977285c53f09b9624221b989d03cdb5c18c8279",
+        "metadata": {
+          "run_id": "20261115T060208Z_openai_gpt-6-luna_v2_gen-v2-x3",
+          "timestamp": "2026-11-15T06:02:08+00:00",
+          "prompt_version": "v2",
+          "dataset_version": "generalization-1.0.0",
+          "repeats": 3,
+          "git_commit": "f02011b",
+          "versions": {
+            "python": "3.14.4",
+            "openai": "3.51.0",
+            "anthropic": "2.8.0",
+            "google-genai": "3.3.0",
+            "pymupdf": "2.1",
+            "pydantic": "2.14.3",
+            "streamlit": "1.67.0"
+          }
+        }
+      },
+      "robert_v3": {
+        "file": "evaluation/results/generalization/20261115T060343Z_openai_gpt-6-luna_v3_gen-v3-x3.json",
+        "note": "Made from the working tree on top of f02011b; inputs checksummed unchanged (docs/EVALUATION_REPORT.md, Section 7.5).",
+        "sha256": "9bb8f4e013ad0e56698b2a5f70f8d6933435a5ed2993a74c2a01dd8e97dad839",
+        "metadata": {
+          "run_id": "20261115T060343Z_openai_gpt-6-luna_v3_gen-v3-x3",
+          "timestamp": "2026-11-15T06:03:43+00:00",
+          "prompt_version": "v3",
+          "dataset_version": "generalization-1.0.0",
+          "repeats": 3,
+          "git_commit": "f02011b",
+          "versions": {
+            "python": "3.14.4",
+            "openai": "3.51.0",
+            "anthropic": "2.8.0",
+            "google-genai": "3.3.0",
+            "pymupdf": "2.1",
+            "pydantic": "2.14.3",
+            "streamlit": "1.67.0"
+          }
+        }
+      },
+      "josue_v3": {
+        "file": "evaluation/experiments/v3_comparison/results/20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3.json",
+        "provenance": "evaluation/experiments/v3_comparison/results/20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3.provenance.json",
+        "note": "Made by run_josue_v3.py at 2a7f747 with no other changes in the tree. Model, settings and package versions are identical to the robert_v3 run.",
+        "sha256": "10aeb10d6540d75caa8b05cc35cf7cffb176b85ec170f492d9537dc3d9059fcd",
+        "metadata": {
+          "run_id": "20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3",
+          "timestamp": "2026-11-24T01:37:30+00:00",
+          "prompt_version": "josue_v3",
+          "dataset_version": "generalization-1.0.0",
+          "repeats": 3,
+          "git_commit": "2a7f747",
+          "versions": {
+            "python": "3.14.4",
+            "openai": "3.51.0",
+            "anthropic": "2.8.0",
+            "google-genai": "3.3.0",
+            "pymupdf": "2.1",
+            "pydantic": "2.14.3",
+            "streamlit": "1.67.0"
+          }
+        }
+      }
+    },
+    "benchmark": {
+      "robert_v3": {
+        "file": "evaluation/results/20261115T053139Z_openai_gpt-6-luna_v3_live-v3-x3.json",
+        "sha256": "e60db54d7344039a0fef67ec5ea500b84e197a20288e333c52387f57b9c504c3",
+        "metadata": {
+          "run_id": "20261115T053139Z_openai_gpt-6-luna_v3_live-v3-x3",
+          "timestamp": "2026-11-15T05:31:39+00:00",
+          "prompt_version": "v3",
+          "dataset_version": "1.0.0",
+          "repeats": 3,
+          "git_commit": "f02011b",
+          "versions": {
+            "python": "3.14.4",
+            "openai": "3.51.0",
+            "anthropic": "2.8.0",
+            "google-genai": "3.3.0",
+            "pymupdf": "2.1",
+            "pydantic": "2.14.3",
+            "streamlit": "1.67.0"
+          }
+        }
+      },
+      "josue_v3_from_pr1": {
+        "file": "evaluation/results/20261121T200504Z_openai_gpt-6-luna_v3_live-v3-x3.json",
+        "commit": "b0dc869b017d4b7a4d2c5752c0b1bc720a27dae4",
+        "blob": "cafb94199f90a378ef7c193bf09a4352f822f1f2",
+        "note": "Run by PR #1's author from an uncommitted working tree on top of 6a93cee, with Python 3.13.9 and openai 3.57.0. Run files record no prompt hash, so it cannot be verified that this run used exactly the b0dc869 prompt.",
+        "sha256": "1f00d999a43d2902fd4e80c4b4088e37c973e9eeba612b340ad6bf9ba7cd8244",
+        "metadata": {
+          "run_id": "20261121T200504Z_openai_gpt-6-luna_v3_live-v3-x3",
+          "timestamp": "2026-11-21T20:05:04+00:00",
+          "prompt_version": "v3",
+          "dataset_version": "1.0.0",
+          "repeats": 3,
+          "git_commit": "6a93cee",
+          "versions": {
+            "python": "3.13.9",
+            "openai": "3.57.0",
+            "pymupdf": "2.1",
+            "pydantic": "2.14.4",
+            "streamlit": "1.67.0"
+          }
+        }
+      }
+    }
+  },
+  "audits": {
+    "generalization": "evaluation/experiments/v3_comparison/audit/scoring_audit.json",
+    "benchmark": "evaluation/experiments/v3_comparison/audit/benchmark/scoring_audit.json"
+  }
+}

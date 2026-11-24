@@ -10,8 +10,10 @@ import re
 from collections import Counter
 
 import pytest
+from pydantic import SecretStr
 
 from docintel.config import FIXTURES_DIR, Settings
+from docintel.credentials import Credential
 from docintel.llm_client import LLMQuotaError, ProviderStatus, ScriptedProvider
 from docintel.pdf_processing import extract_document
 from evaluation import evaluation_runner, scoring
@@ -188,6 +190,18 @@ def test_offline_evaluation_runner_end_to_end(tmp_path):
     assert (tmp_path / f"{run['metadata']['run_id']}.md").is_file()
 
 
+@pytest.mark.parametrize("version", [None, "v1", "v2", "v3"])
+def test_offline_runner_defaults_to_v3_and_still_runs_v1_and_v2(tmp_path, version):
+    flags = [] if version is None else ["--prompt-version", version]
+    code = evaluation_runner.main(
+        ["--provider", "mock", "--cases", "CF-02", "--out", str(tmp_path), *flags]
+    )
+    assert code == 0
+    run = json.loads(next(tmp_path.glob("*.json")).read_text())
+    assert run["metadata"]["prompt_version"] == (version or "v3")
+    assert run["metrics"]["errors"] == 0
+
+
 def test_runner_refuses_paid_provider_without_explicit_permission(tmp_path, capsys):
     code = evaluation_runner.main(
         ["--provider", "openai", "--cases", "DF-01", "--out", str(tmp_path)]
@@ -218,8 +232,12 @@ def test_runner_reports_a_missing_key_without_starting(tmp_path, capsys):
 
 def test_runner_stops_on_a_spend_limit_without_writing_results(tmp_path, monkeypatch, capsys):
     provider = ScriptedProvider([LLMQuotaError("Spend limit reached.")])
+    fake = Credential("openai", SecretStr("runner-test-key-not-a-real-key-00"), "server")
+    monkeypatch.setattr(evaluation_runner, "server_credential", lambda name: fake)
     monkeypatch.setattr(
-        evaluation_runner, "create_provider", lambda settings: ProviderStatus(provider, "openai")
+        evaluation_runner,
+        "create_provider",
+        lambda settings, credential=None: ProviderStatus(provider, "openai"),
     )
     code = evaluation_runner.main(
         ["--provider", "openai", "--allow-paid", "--cases", "DF-01,DF-02", "--out", str(tmp_path)]
@@ -228,3 +246,28 @@ def test_runner_stops_on_a_spend_limit_without_writing_results(tmp_path, monkeyp
     assert len(provider.requests) == 1  # DF-02 was never sent
     assert "no results file was written" in capsys.readouterr().err
     assert not list(tmp_path.iterdir())
+
+
+def test_runner_uses_the_owners_server_key_and_never_writes_it(tmp_path, monkeypatch, capsys):
+    """The command-line runner is the key owner's own tool: it passes the server key explicitly,
+    and no key value appears in the result files it writes."""
+    from docintel.offline_provider import ExtractiveOfflineProvider
+
+    owner_key = "runner-owner-key-not-a-real-key-01"
+    monkeypatch.setenv("OPENAI_API_KEY", owner_key)
+    used = []
+
+    def fake_create_provider(settings, credential=None):
+        used.append(credential)
+        return ProviderStatus(ExtractiveOfflineProvider(settings), "openai")
+
+    monkeypatch.setattr(evaluation_runner, "create_provider", fake_create_provider)
+    code = evaluation_runner.main(
+        ["--provider", "openai", "--allow-paid", "--cases", "DF-01", "--out", str(tmp_path)]
+    )
+    assert code == 0
+    assert [(c.provider, c.source) for c in used] == [("openai", "server")]
+    assert used[0].secret.get_secret_value() == owner_key
+    written = [p.read_text(encoding="utf-8") for p in tmp_path.iterdir()]
+    assert written and all(owner_key not in text for text in written)
+    assert owner_key not in capsys.readouterr().out

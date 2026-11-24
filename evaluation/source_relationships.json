@@ -1,0 +1,55 @@
+{
+  "version": "proposed-2026-11-14",
+  "status": "Proposed during the 2026-11-14 scoring audit by Claude Code. Not yet reviewed by a team member.",
+  "basis": "Each annotation restates the case's own criteria and notes in evaluation/test_cases.json, which were written on 2026-11-13, before any live run. Values and date markers are copied from those criteria. The annotations were written after the live results had been read, so a team member should confirm them independently.",
+  "relationships": {
+    "unresolved_contradiction": "The sources make incompatible statements about the same thing and nothing in them says which is right. Expected: status conflicting_evidence, with every value reported and none chosen.",
+    "superseded": "A later document explicitly replaces an earlier value, for example an amendment. Expected: the current value. The earlier value may be mentioned only in a sentence that says it was replaced. Flagging a conflict is allowed but not required.",
+    "different_context": "The values differ because they describe different dates, scopes or assumptions, and each is correct in its own context. Expected: every value with its context marker, such as its 'as of' date. Flagging a conflict is allowed but not required.",
+    "compatible": "The sources agree or add complementary facts. Expected: the combined facts, with no conflict flagged."
+  },
+  "cases": {
+    "CF-01": {
+      "relationship": "unresolved_contradiction",
+      "values": [["november 17"], ["december 1"]],
+      "basis": "notes: 'Genuine contradiction: neither document explains the difference.' criteria: 'Reports both dates ... without choosing one.'"
+    },
+    "CF-02": {
+      "relationship": "different_context",
+      "values": [["112,400"], ["118,900"]],
+      "context_markers": [
+        ["september 30", "sept. 30", "sep. 30", "sep 30", "9/30"],
+        ["october 10", "oct. 10", "oct 10", "10/10"]
+      ],
+      "basis": "criteria: 'Gives both figures with their as-of dates ($112,400 as of September 30, 2026; $118,900 as of October 10, 2026) and explains they differ by reporting date.' notes: 'Context difference, not a contradiction.'"
+    },
+    "CF-03": {
+      "relationship": "superseded",
+      "current": ["99.9"],
+      "previous": ["99.5"],
+      "basis": "criteria: '99.9% under Amendment No. 1 (raised from 99.5%); the amendment prevails.'"
+    },
+    "MD-01": {
+      "relationship": "superseded",
+      "current": ["5,200"],
+      "previous": ["4,500"],
+      "basis": "criteria: '$5,200.00 from July 1, 2026 (amendment, page 1), replacing $4,500.00; the amendment prevails.'"
+    },
+    "MD-02": {
+      "relationship": "superseded",
+      "current": ["90", "ninety"],
+      "previous": ["60", "sixty"],
+      "basis": "criteria: '90 days under the amendment (previously 60 days, MSA page 1).'"
+    },
+    "MD-03": {
+      "relationship": "compatible",
+      "values": [["180,000"], ["186,500"]],
+      "basis": "criteria: 'Both documents agree.' notes: 'Agreement across documents; should not be reported as a conflict.'"
+    },
+    "MD-04": {
+      "relationship": "compatible",
+      "values": [["larkspur"], ["412,000"]],
+      "basis": "criteria: complementary facts from the services agreement and the status report."
+    }
+  }
+}

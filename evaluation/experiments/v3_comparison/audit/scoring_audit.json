@@ -1,0 +1,1774 @@
+{
+  "audit": "DocIntel scoring audit",
+  "original_scorer": "evaluation/scoring.py (unchanged; scorer of record)",
+  "revised_rules": "evaluation/scoring_audit.py and evaluation/generalization/relationships.json (generalization-1.0.0; Written on 2026-11-15 together with the cases and documents, before any model was run on them. Not yet reviewed by a team member.)",
+  "original_scores_reproduced": true,
+  "runs": [
+    {
+      "run_id": "20261115T060208Z_openai_gpt-6-luna_v2_gen-v2-x3",
+      "provider": "openai",
+      "model": "gpt-6-luna",
+      "offline": false,
+      "prompt_version": "v2",
+      "repeats": 3,
+      "cases_run": 30,
+      "original_scores_reproduced": true,
+      "reproduction": {
+        "case_score_mismatches": [],
+        "metrics_match": true,
+        "consistency_match": true
+      },
+      "original": {
+        "passed": 26,
+        "overall_pass_rate": 0.867,
+        "injection_resistance_rate": null,
+        "conflict_handling_rate": 0.5
+      },
+      "revised": {
+        "passed": 26,
+        "overall_pass_rate": 0.867,
+        "injection_resistance_rate": null,
+        "conflict_handling_rate": 0.667,
+        "source_relationship_handling_rate": 0.867,
+        "handling_by_relationship": {
+          "unresolved_contradiction": {
+            "handled": 6,
+            "cases": 6
+          },
+          "superseded": {
+            "handled": 12,
+            "cases": 12
+          },
+          "different_context": {
+            "handled": 2,
+            "cases": 6
+          },
+          "compatible": {
+            "handled": 6,
+            "cases": 6
+          }
+        },
+        "false_conflict_flags": {
+          "flagged": 0,
+          "cases": 6
+        },
+        "conflict_label_agreement": 1.0
+      },
+      "by_category": {
+        "conflicting_evidence": {
+          "cases": 12,
+          "original": 8,
+          "revised": 8
+        },
+        "direct_factual": {
+          "cases": 6,
+          "original": 6,
+          "revised": 6
+        },
+        "multi_document": {
+          "cases": 12,
+          "original": 12,
+          "revised": 12
+        }
+      },
+      "changes": [],
+      "rows": [
+        {
+          "case_id": "GEN-01",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": false,
+          "revised_pass": false,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": false,
+            "problems": [
+              "missing 640,000",
+              "missing context 'march 31'"
+            ],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": false,
+          "revised_pass": false,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": false,
+            "problems": [
+              "missing 61,750",
+              "missing context 'december 31'"
+            ],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 0,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 0,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-01",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 1,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 1,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-01",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": false,
+          "revised_pass": false,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": false,
+            "problems": [
+              "missing 640,000",
+              "missing context 'march 31'"
+            ],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": false,
+          "revised_pass": false,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": false,
+            "problems": [
+              "missing 61,750",
+              "missing context 'december 31'"
+            ],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 2,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 2,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        }
+      ],
+      "file": "evaluation/results/generalization/20261115T060208Z_openai_gpt-6-luna_v2_gen-v2-x3.json",
+      "sha256": "e800c9e1d43460357a4c6ccca977285c53f09b9624221b989d03cdb5c18c8279"
+    },
+    {
+      "run_id": "20261115T060343Z_openai_gpt-6-luna_v3_gen-v3-x3",
+      "provider": "openai",
+      "model": "gpt-6-luna",
+      "offline": false,
+      "prompt_version": "v3",
+      "repeats": 3,
+      "cases_run": 30,
+      "original_scores_reproduced": true,
+      "reproduction": {
+        "case_score_mismatches": [],
+        "metrics_match": true,
+        "consistency_match": true
+      },
+      "original": {
+        "passed": 30,
+        "overall_pass_rate": 1.0,
+        "injection_resistance_rate": null,
+        "conflict_handling_rate": 0.917
+      },
+      "revised": {
+        "passed": 30,
+        "overall_pass_rate": 1.0,
+        "injection_resistance_rate": null,
+        "conflict_handling_rate": 1.0,
+        "source_relationship_handling_rate": 1.0,
+        "handling_by_relationship": {
+          "unresolved_contradiction": {
+            "handled": 6,
+            "cases": 6
+          },
+          "superseded": {
+            "handled": 12,
+            "cases": 12
+          },
+          "different_context": {
+            "handled": 6,
+            "cases": 6
+          },
+          "compatible": {
+            "handled": 6,
+            "cases": 6
+          }
+        },
+        "false_conflict_flags": {
+          "flagged": 0,
+          "cases": 6
+        },
+        "conflict_label_agreement": 1.0
+      },
+      "by_category": {
+        "conflicting_evidence": {
+          "cases": 12,
+          "original": 12,
+          "revised": 12
+        },
+        "direct_factual": {
+          "cases": 6,
+          "original": 6,
+          "revised": 6
+        },
+        "multi_document": {
+          "cases": 12,
+          "original": 12,
+          "revised": 12
+        }
+      },
+      "changes": [],
+      "rows": [
+        {
+          "case_id": "GEN-01",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 0,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 0,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-01",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 1,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 1,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-01",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          },
+          "original_conflict_credit": false
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 2,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 2,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        }
+      ],
+      "file": "evaluation/results/generalization/20261115T060343Z_openai_gpt-6-luna_v3_gen-v3-x3.json",
+      "sha256": "9bb8f4e013ad0e56698b2a5f70f8d6933435a5ed2993a74c2a01dd8e97dad839"
+    },
+    {
+      "run_id": "20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3",
+      "provider": "openai",
+      "model": "gpt-6-luna",
+      "offline": false,
+      "prompt_version": "josue_v3",
+      "repeats": 3,
+      "cases_run": 30,
+      "original_scores_reproduced": true,
+      "reproduction": {
+        "case_score_mismatches": [],
+        "metrics_match": true,
+        "consistency_match": true
+      },
+      "original": {
+        "passed": 30,
+        "overall_pass_rate": 1.0,
+        "injection_resistance_rate": null,
+        "conflict_handling_rate": 1.0
+      },
+      "revised": {
+        "passed": 30,
+        "overall_pass_rate": 1.0,
+        "injection_resistance_rate": null,
+        "conflict_handling_rate": 1.0,
+        "source_relationship_handling_rate": 1.0,
+        "handling_by_relationship": {
+          "unresolved_contradiction": {
+            "handled": 6,
+            "cases": 6
+          },
+          "superseded": {
+            "handled": 12,
+            "cases": 12
+          },
+          "different_context": {
+            "handled": 6,
+            "cases": 6
+          },
+          "compatible": {
+            "handled": 6,
+            "cases": 6
+          }
+        },
+        "false_conflict_flags": {
+          "flagged": 0,
+          "cases": 6
+        },
+        "conflict_label_agreement": 1.0
+      },
+      "by_category": {
+        "conflicting_evidence": {
+          "cases": 12,
+          "original": 12,
+          "revised": 12
+        },
+        "direct_factual": {
+          "cases": 6,
+          "original": 6,
+          "revised": 6
+        },
+        "multi_document": {
+          "cases": 12,
+          "original": 12,
+          "revised": 12
+        }
+      },
+      "changes": [],
+      "rows": [
+        {
+          "case_id": "GEN-01",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 0,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 0,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 0,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 0,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-01",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 1,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 1,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 1,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 1,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-01",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-02",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "different_context",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "context_difference"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-03",
+          "repeat": 2,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-04",
+          "repeat": 2,
+          "category": "direct_factual",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-05",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-06",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "superseded",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-07",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-08",
+          "repeat": 2,
+          "category": "multi_document",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "compatible",
+            "handled": true,
+            "problems": [],
+            "flagged": false,
+            "natures": [],
+            "label_agreement": null
+          }
+        },
+        {
+          "case_id": "GEN-09",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        },
+        {
+          "case_id": "GEN-10",
+          "repeat": 2,
+          "category": "conflicting_evidence",
+          "error": null,
+          "original_pass": true,
+          "revised_pass": true,
+          "relationship": {
+            "relationship": "unresolved_contradiction",
+            "handled": true,
+            "problems": [],
+            "flagged": true,
+            "natures": [
+              "direct_contradiction"
+            ],
+            "label_agreement": true
+          },
+          "original_conflict_credit": true
+        }
+      ],
+      "file": "evaluation/experiments/v3_comparison/results/20261124T013730Z_openai_gpt-6-luna_josue_v3_gen-josue-v3-x3.json",
+      "sha256": "10aeb10d6540d75caa8b05cc35cf7cffb176b85ec170f492d9537dc3d9059fcd"
+    }
+  ],
+  "context_checks": []
+}
