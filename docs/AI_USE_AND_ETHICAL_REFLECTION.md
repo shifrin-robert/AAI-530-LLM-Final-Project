@@ -27,7 +27,7 @@ authorization. The checks that were actually performed:
 
 | Check | What it caught |
 |---|---|
-| 285 automated tests, all executed (`python -m pytest`) | Logic errors in extraction, chunking, retrieval, prompts, citation checks, providers and UI flows |
+| 307 automated tests, all executed (`python -m pytest`) | Logic errors in extraction, chunking, retrieval, prompts, citation checks, providers and UI flows |
 | Dataset integrity tests: every reference fact must appear on its expected page of the real PDFs | Protects against AI-drafted reference answers that the documents do not support; caught a hyphenation bug |
 | Provider contract tests against the real SDKs with mocked HTTP | Caught an adapter importing a library the current SDK no longer uses (`httpx` vs `httpx2`) |
 | Retrieval benchmark and offline end-to-end evaluation | Measured retrieval choices; revealed a ranking regression from boilerplate removal |
@@ -35,6 +35,7 @@ authorization. The checks that were actually performed:
 | Lint/format (Ruff) and a Python 3.10-grammar syntax check | Code quality; a syntax construct that would fail on Python 3.11 |
 | Re-reading official provider pages, with a second verification pass for figures first seen in summarized page text | Corrected an initial "not found" for two Gemini prices |
 | Staged live evaluation of `gpt-6-luna` under an authorized budget (203 case runs, $0.056 computed from token counts) | One genuine failure: an earlier dated figure left out (CF-02). Also showed where automatic scores disagree with the cases' criteria |
+| Prompt v3 test and a separate 10-case generalization set, with cases and pass criteria written before any model run (another $0.043 under separate authorizations) | Confirmed the targeted fix for dated figures on new documents (v3: 30 of 30 case runs; v2: 26 of 30) without regressions. These are automatic scores, not human verification |
 | Scoring audit: original scores reproduced exactly from the saved answers; revised rules tested on made-up examples written separately from the fixtures | Two automatic rules stricter than the cases' own criteria (conflict handling; injection answers that quote the planted text in order to flag it) |
 
 The full list of defects found and fixed is in `docs/PROMPT_AND_TESTING_APPENDIX.md`, Section I.

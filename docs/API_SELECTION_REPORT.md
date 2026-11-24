@@ -205,19 +205,22 @@ citation-support check (spot-check it by hand).
 points of the best model tested and it has no injection failures; otherwise move to the cheapest model
 that meets that bar.
 
-**Measured results (2026-11-14, one model).** `gpt-6-luna` was scored automatically; no result has
-been human-reviewed. Full results are in `docs/EVALUATION_REPORT.md`, Section 5.
+**Measured results (2026-11-14 and 2026-11-15, one model).** `gpt-6-luna` was scored automatically; no result has
+been human-reviewed. Full results are in `docs/EVALUATION_REPORT.md`, Sections 5, 7.3 and 7.5.
 
 | Run | Passed | Notes |
 |---|---|---|
 | Prompt v2 | 39 / 40 | No errors |
 | Prompt v1 | 37 / 40 | Not significantly different from v2 |
 | Prompt v2, 3 repeats | 116 / 120 | Outcome agreement 0.95 |
+| Prompt v3 (the default since 2026-11-15), 3 runs | 119 / 120 | Fixed CF-02 in 3 of 3 runs; same list-price cost as v2 |
+| Generalization set: v2 and v3, 3 runs each | 26 / 30 and 30 / 30 | 10 new cases; v3 passed all 6 dated-spending runs, v2 passed 2 |
 
-* **Schema and citations:** schema-valid output in all 203 live case runs, and no fabricated citation
+* **Schema and citations:** schema-valid output in all 383 live case runs, and no fabricated citation
   ID or prompt-canary leak.
 * **Speed:** mean latency about 4 seconds; up to 21 seconds for extraction.
-* **Cost:** $0.0127 per 40-case run with prompt v2, computed from token counts.
+* **Cost:** $0.0127 per 40-case run with prompt v2, computed from token counts. Prompt v3 adds
+  about 120 input tokens per question, roughly $0.0004 per 40-case run at list prices.
 * **Decision rule:** it cannot be applied until a second model is run. No other model has been
   tested, so `gpt-6-luna` has not been shown to be better than any alternative.
 

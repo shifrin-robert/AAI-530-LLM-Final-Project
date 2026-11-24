@@ -8,6 +8,7 @@
 # Only the synthetic evaluation fixtures are allowed in the repository.
 *.pdf
 !evaluation/fixtures/*.pdf
+!evaluation/fixtures/generalization/*.pdf
 uploads/
 private_documents/
 data/private/

@@ -46,8 +46,8 @@ understand long documents and verify what they will act on.
 * **Model choice:** OpenAI (default), Anthropic or Google Gemini via configuration, plus an offline
   mode that needs no key.
 * **Evaluation suite:** 40 labelled cases, a retrieval benchmark, a cost-guarded live evaluation
-  (GPT-6 Luna passed 39 of 40 cases with prompt v2, scored automatically), a scoring audit and a
-  human review worksheet.
+  with GPT-6 Luna (scored automatically), a scoring audit, a separate 10-case generalization set and
+  a human review worksheet. The default question-answering prompt is v3.
 
 | Prompt-injection document, flagged | Cited page with highlight |
 |---|---|
@@ -170,7 +170,7 @@ sidebar to use a hosted model. See the [user guide](docs/USER_GUIDE.md).
 python -m pytest
 ```
 
-All 285 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
+All 307 tests run offline in a few seconds: no network access, API keys or charges. Provider adapters
 are tested against the real SDKs with mocked HTTP; the UI is tested headlessly with Streamlit's
 AppTest.
 
@@ -200,17 +200,26 @@ python -m evaluation.evaluation_runner --provider openai --model gpt-6-luna --al
 ```
 
 Results are written to `evaluation/results/` and reported in
-[docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md). The live evaluation ran on 2026-11-14 with
-GPT-6 Luna and cost $0.056 in total, computed from the token counts the API returned:
+[docs/EVALUATION_REPORT.md](docs/EVALUATION_REPORT.md). The live evaluation ran on 2026-11-14 and
+2026-11-15 with GPT-6 Luna and cost $0.099 in total, computed from the token counts the API returned.
 
-| Run (40 labelled cases) | Passed | Kind of result |
+| Benchmark run (40 labelled cases) | Passed | Kind of result |
 |---|---|---|
 | Offline extractive baseline (not an LLM) | 23 / 40 | Measured offline, automatic scoring |
 | GPT-6 Luna, prompt v1 | 37 / 40 | Live, automatic scoring |
-| GPT-6 Luna, prompt v2 (default) | 39 / 40 | Live, automatic scoring |
+| GPT-6 Luna, prompt v2 (the previous default) | 39 / 40 | Live, automatic scoring |
 | GPT-6 Luna, prompt v2, three repeats | 116 / 120 | Live, automatic scoring |
+| GPT-6 Luna, prompt v3 (the default), three runs | 119 / 120 | Live, automatic scoring |
 
-These are automatic scores, not human judgements.
+| Generalization set (10 new cases, 3 runs per prompt) | Prompt v2 | Prompt v3 |
+|---|---|---|
+| All case runs | 26 / 30 | 30 / 30 |
+| Spending reported on two dates (2 cases) | 2 / 6 | 6 / 6 |
+| Current and historical figures, revised budgets, compatible figures, contradictions (8 cases) | 24 / 24 | 24 / 24 |
+
+These are automatic scores on synthetic test documents written for this project. They are not
+human judgements, and they don't measure accuracy on arbitrary documents: a 30/30 here means only
+that every automatic check passed on these 10 cases.
 
 * **Citation support** is a word-overlap heuristic, not a semantic check.
 * **Human review:** no case has been reviewed by a person yet; the worksheet is in
@@ -219,8 +228,16 @@ These are automatic scores, not human judgements.
 * **Scoring audit** (`python -m evaluation.scoring_audit`): it found two automatic rules stricter
   than the cases' own criteria, for conflicts and for quoted injections. It re-scores the saved
   answers with proposed revisions without changing any result file.
-* **The one genuine failure**, CF-02 (an earlier dated figure left out), and a proposed prompt v3
-  for it are described in the report. v3 has not been run.
+* **Prompt v3 is the default** (since 2026-11-15). It is v2 plus one rule for figures reported as
+  of different dates.
+  * It fixed the one genuine v2 failure (CF-02: 3 of 3 runs) and the same failure on new documents
+    (2 of 6 runs with v2, 6 of 6 with v3).
+  * No case did worse, and all nine adoption criteria set before the runs were met.
+  * The differences are not statistically significant on samples this small, and repeated runs of
+    the same cases are not independent.
+  * v1 and v2 remain selectable in the app and the runner.
+  * A local `.env` copied from an older `.env.example` may still set
+    `DOCINTEL_QA_PROMPT_VERSION=v2`. Change it to `v3` or remove the line.
 
 ## Repository structure
 
@@ -240,9 +257,10 @@ src/docintel/                Application package
   grounding.py               Citation validation
   qa.py, summarization.py, extraction.py, comparison.py   Task workflows
   session.py, security.py, workflow_utils.py
-prompts/                     Versioned prompt templates (QA v1, v2 and proposed v3, summary, extraction, comparison)
-tests/                       285 automated tests (offline)
-evaluation/                  Fixtures, labelled cases, runners, scoring, scoring audit, results, review worksheet
+prompts/                     Versioned prompt templates (QA v1, v2 and v3 (default), summary, extraction, comparison)
+tests/                       307 automated tests (offline)
+evaluation/                  Fixtures, labelled cases, runners, scoring, scoring audit, results, review worksheet,
+                             generalization set
 scripts/                     Cost estimate and project audit
 docs/                        Documentation, appendix, evaluation, ethics, presentation materials
 assets/screenshots/          Screenshots of the running app (offline demo mode)
@@ -267,7 +285,9 @@ assets/screenshots/          Screenshots of the running app (offline demo mode)
 
 ## Known limitations
 
-* Live LLM behavior has not been evaluated yet (no API key was available during development).
+* Live LLM behavior is measured for one model (`gpt-6-luna`) on 50 synthetic cases, scored
+  automatically and not yet human-reviewed. Prompt v3's gain on dated figures rests on three
+  similar cases (CF-02, GEN-01, GEN-02).
 * Lexical retrieval misses pure synonyms; embeddings are the planned next step.
 * No OCR for scanned pages; complex tables may extract imperfectly.
 * The citation support check is a heuristic, and the injection filter cannot catch every attack.
@@ -301,6 +321,7 @@ verified record is in [docs/TEAM_CONTRIBUTIONS.md](docs/TEAM_CONTRIBUTIONS.md).
 
 ## Future improvements
 
-Complete the human review; test the proposed prompt v3 and benchmark other models; add embedding
+Complete the human review; extend the generalization set with team-written cases and real
+documents; benchmark other models; add embedding
 retrieval; optional OCR; semantic citation checking; a larger independent evaluation set; prompt caching and streaming; authentication
 for multi-user deployment.

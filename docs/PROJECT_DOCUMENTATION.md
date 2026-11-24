@@ -15,11 +15,20 @@ every citation before showing highlighted evidence.
 
 The provisional model is OpenAI `gpt-6-luna` (about $0.15 per 100 typical requests), chosen after a
 documented comparison of OpenAI, Anthropic and Google models; Anthropic and Gemini adapters and an
-offline extractive provider are also implemented. The project includes 285 passing automated tests,
-40 labelled evaluation cases over synthetic documents, a retrieval benchmark, an offline baseline
-evaluation and a live evaluation of `gpt-6-luna` that cost $0.056 in total (2026-11-14). With the
-default prompt v2 the model passed 39 of 40 cases, and 155 of 160 over four runs. These scores are
-automatic; no result has been reviewed by a person yet.
+offline extractive provider are also implemented.
+
+The project includes 307 passing automated tests, 40 labelled benchmark cases over synthetic
+documents, a separate 10-case generalization set, a retrieval benchmark, an offline baseline and a
+live evaluation of `gpt-6-luna` that cost $0.099 in total (2026-11-14 and 2026-11-15).
+
+* **Prompt v2:** passed 39 of 40 benchmark cases, and 155 of 160 over four runs.
+* **Prompt v3** (v2 plus one rule for figures reported as of different dates): passed 119 of 120
+  over three runs, against 116 for v2's three runs. On the generalization set it passed 30 of 30,
+  against 26 of 30 for v2. It fixed every dated-spending case, with no case-level regression.
+* **Adoption:** v3 became the default on 2026-11-15. v1 and v2 remain available.
+
+These scores are automatic, on synthetic documents and small samples. They are not statistically
+significant per case, and no result has been reviewed by a person yet.
 
 ## 2. Real-world problem
 
@@ -93,10 +102,12 @@ falls back to the offline extractive provider and says so.
 
 ## 10. Prompt customization
 
-Eight versioned prompt files (`prompts/`). The default QA prompt (v2) defines the role, instruction
+Nine versioned prompt files (`prompts/`). The default QA prompt (v3) defines the role, instruction
 hierarchy, documents as untrusted evidence, grounding, citation and quote rules, insufficient-evidence
 handling, conflicting-evidence handling (contradiction vs context difference), ambiguity, confidence,
-output format and safety/confidentiality. v1 is a minimal baseline kept for the iteration experiment.
+output format and safety/confidentiality. v3 is v2 plus one rule: figures reported as of different
+dates are all given, each with its date. v2 (the previous default) and v1 (a minimal baseline) are
+kept for comparison.
 Version history, reasons and full text: `docs/PROMPT_AND_TESTING_APPENDIX.md`.
 
 ## 11. PDF processing
@@ -148,10 +159,13 @@ Six layers:
 1. automated tests;
 2. dataset integrity checks;
 3. retrieval benchmark;
-4. end-to-end evaluation: the offline baseline, then GPT-6 Luna with prompts v1 and v2 on
-   2026-11-14;
+4. end-to-end evaluation: the offline baseline, then GPT-6 Luna with prompts v1 and v2
+   (2026-11-14), then v3 (2026-11-15);
 5. a scoring audit of the automatic rules;
 6. human review (the worksheet is ready, but no case has been reviewed).
+
+A separate generalization set of 10 new cases tests whether v3's rule carries over to new
+documents. It was run for v2 and v3 on 2026-11-15.
  Automatic scoring checks required
 facts, acceptable status, forbidden phrases, fabricated IDs, canary leaks, evidence pages, extraction
 recall and comparison constraints. Full method: `docs/EVALUATION_REPORT.md`.
@@ -165,7 +179,7 @@ are machine-checked against the fixture pages. Table: `docs/PROMPT_AND_TESTING_A
 
 ## 17. Actual results
 
-* **Automated tests:** `python -m pytest` -> 285 passed.
+* **Automated tests:** `python -m pytest` -> 307 passed.
 * **Retrieval (collection setting):** on paraphrased questions BM25 got the right page into the model's
   context for 9 of 12 questions; hybrid and character n-grams for 11 of 12. On exact-wording questions
   all methods reached 100%; BM25 ranked slightly better (MRR 0.933 vs 0.917 for hybrid).
@@ -186,6 +200,20 @@ are machine-checked against the fixture pages. Table: `docs/PROMPT_AND_TESTING_A
   original scores remain the scores of record.
 * **Genuine failure:** CF-02. The model gives only the later of two dated spending figures, although
   both were in its context. It passed 1 of 4 attempts with v2.
+* **Prompt v3** (2026-11-15; automatic scoring), compared with v2's three runs:
+  * passed 119 of 120 case runs (116 for v2), and 120 under the revised rules (118 for v2);
+  * passed CF-02 in 3 of 3 runs, with no case worse;
+  * +120 input tokens per question, the same list-price cost and the same latency.
+  It met all four criteria fixed before the run. The difference is not statistically significant
+  (Fisher p = 0.40 for CF-02).
+* **Generalization set** (10 new cases, three runs per prompt, automatic scoring):
+  * v2 passed 26 of 30 case runs and v3 passed 30 of 30;
+  * on spending reported on two dates, v2 passed 2 of 6 and v3 6 of 6;
+  * both prompts passed all 24 runs on current versus historical figures, revised budgets,
+    compatible figures and genuine contradictions;
+  * v3 met all five criteria fixed before the run, with no case-level regression;
+  * Fisher p = 0.061 on the dated cases; the runs are repeated measurements of the same
+    questions.
 
 ## 18. Prompt revisions
 
@@ -196,8 +224,15 @@ needs, not from live failures.
 
 Measured on 2026-11-14, v2 passed 39 of 40 cases and v1 passed 37. One of the two differences (INJ-03)
 is a scoring artifact, and the difference is not statistically significant (exact McNemar p = 0.5).
-A v3 that adds one rule for figures reported as of different dates is proposed for CF-02; it has not
-been run (`docs/EVALUATION_REPORT.md`, Section 7).
+v3 adds one rule for figures reported as of different dates. It is the first revision driven by an
+observed live failure (CF-02). Tested on 2026-11-15, it fixed CF-02 in all three runs without
+regressions. It also labelled CF-01's disagreement as a context difference, a classification the
+report judges defensible but not the best fit.
+
+The generalization set then showed the same fix on new documents (6 of 6 dated runs against 2 of 6)
+without regressions. The team made v3 the default on 2026-11-15. It asked that CF-01 be treated as
+an unresolved discrepancy, and that the app present conflict labels as the model's classification
+(`docs/EVALUATION_REPORT.md`, Sections 7.3 to 7.6).
 
 ## 19. Failure analysis
 
@@ -269,8 +304,8 @@ and wrote the documentation. How the work was verified and what the team must st
 
 ## 26. Future improvements
 
-1. Complete the human review; test the proposed prompt v3; benchmark other models with the same
-   harness.
+1. Complete the human review, extend the generalization set with team-written cases and real
+   documents, and benchmark other models with the same harness.
 2. Add embedding retrieval (or hybrid lexical + embeddings) and compare with the existing benchmark.
 3. Optional OCR (for example Tesseract) with confidence reporting.
 4. Semantic citation checking with an entailment model or calibrated LLM judge.
@@ -284,6 +319,11 @@ DocIntel AI demonstrates LLM engineering beyond a chat wrapper: a deterministic,
 layer; prompts designed around an explicit trust boundary; schema-constrained outputs; and an
 independent verification layer that turns citations into checkable evidence. Its offline evaluation
 shows both why grounding matters and why valid citations alone do not guarantee correct answers. The
-live evaluation of GPT-6 Luna (39 of 40 cases with prompt v2, scored automatically) supports the
-design. Three steps remain before the final configuration is fixed: human review, a test of the
-proposed prompt v3, and a comparison with other models.
+live evaluation of GPT-6 Luna supports the design. Prompt v2 passed 39 of 40 cases, and the targeted
+revision v3, now the default, fixed v2's one remaining failure on the benchmark and on new documents
+at about the same cost. All of these are automatic scores on synthetic documents. Three steps
+remain before the results can be trusted beyond them:
+
+1. human review;
+2. team-written cases over real documents;
+3. a comparison with other models.

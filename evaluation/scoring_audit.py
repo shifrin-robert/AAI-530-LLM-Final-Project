@@ -3,6 +3,7 @@
     python -m evaluation.scoring_audit                   # every saved run in evaluation/results/
     python -m evaluation.scoring_audit <run.json> ...    # selected runs
     python -m evaluation.scoring_audit --out <folder>    # write somewhere other than evaluation/audit/
+    python -m evaluation.scoring_audit --dataset generalization   # the separate generalization set
 
 Why it exists
 -------------
@@ -63,6 +64,34 @@ RELATIONSHIPS_PATH = HERE / "source_relationships.json"
 # Cases where the audit also records which expected values were in the passages sent to the
 # model, to tell an incomplete answer apart from a retrieval miss.
 CONTEXT_CHECK_CASES = ("CF-02",)
+GENERALIZATION_DIR = HERE / "generalization"
+
+
+@dataclass(frozen=True)
+class Dataset:
+    """Where a dataset's cases, annotations, documents, saved runs and audit output live."""
+
+    cases: Path
+    relationships: Path
+    fixtures: Path
+    results: Path
+    audit: Path
+    context_checks: tuple[str, ...]
+
+
+DATASETS = {
+    "benchmark": Dataset(
+        CASES_PATH, RELATIONSHIPS_PATH, FIXTURES_DIR, RESULTS_DIR, AUDIT_DIR, CONTEXT_CHECK_CASES
+    ),
+    "generalization": Dataset(
+        GENERALIZATION_DIR / "cases.json",
+        GENERALIZATION_DIR / "relationships.json",
+        FIXTURES_DIR / "generalization",
+        RESULTS_DIR / "generalization",
+        AUDIT_DIR / "generalization",
+        (),
+    ),
+}
 
 # ----------------------------------------------------------------------------- sentences
 
@@ -392,7 +421,7 @@ class DocumentTexts:
         return self._cache[name]
 
 
-def context_check(case: dict, metadata: dict) -> dict:
+def context_check(case: dict, metadata: dict, fixtures_dir: Path = FIXTURES_DIR) -> dict:
     """Which expected values were in the passages sent to the model (offline; no API call).
 
     Retrieval does not depend on the model, so running the question through the offline
@@ -411,7 +440,7 @@ def context_check(case: dict, metadata: dict) -> dict:
     }
     retriever = metadata.get("retriever") or "hybrid"
     settings = Settings().with_overrides(provider="mock", retriever=retriever, **retrieval)
-    workspace = WorkspaceCache(settings).get(case["documents"])
+    workspace = WorkspaceCache(settings, fixtures_dir).get(case["documents"])
     result = answer_question(
         workspace,
         create_provider(settings).provider,
@@ -574,9 +603,9 @@ def audit_run(
     }
 
 
-def default_runs() -> list[Path]:
+def default_runs(results_dir: Path = RESULTS_DIR) -> list[Path]:
     """Saved end-to-end runs (not the retrieval benchmark, not the scratch folder)."""
-    return sorted(p for p in RESULTS_DIR.glob("*.json") if "retrieval_benchmark" not in p.name)
+    return sorted(p for p in results_dir.glob("*.json") if "retrieval_benchmark" not in p.name)
 
 
 def _display_path(path: Path) -> str:
@@ -586,10 +615,13 @@ def _display_path(path: Path) -> str:
         return path.name
 
 
-def build_audit(paths: Sequence[Path], *, with_context_check: bool = True) -> dict:
-    cases = {c["id"]: c for c in json.loads(CASES_PATH.read_text(encoding="utf-8"))["cases"]}
-    annotations = json.loads(RELATIONSHIPS_PATH.read_text(encoding="utf-8"))
-    documents = DocumentTexts()
+def build_audit(
+    paths: Sequence[Path], *, with_context_check: bool = True, dataset: str = "benchmark"
+) -> dict:
+    ds = DATASETS[dataset]
+    cases = {c["id"]: c for c in json.loads(ds.cases.read_text(encoding="utf-8"))["cases"]}
+    annotations = json.loads(ds.relationships.read_text(encoding="utf-8"))
+    documents = DocumentTexts(ds.fixtures)
     runs, metadata = [], []
     for path in paths:
         raw = path.read_bytes()
@@ -604,11 +636,11 @@ def build_audit(paths: Sequence[Path], *, with_context_check: bool = True) -> di
     context = []
     if with_context_check and metadata:
         live = next((m for m in metadata if not m["offline"]), metadata[0])
-        context = [context_check(cases[cid], live) for cid in CONTEXT_CHECK_CASES]
+        context = [context_check(cases[cid], live, ds.fixtures) for cid in ds.context_checks]
     return {
         "audit": "DocIntel scoring audit",
         "original_scorer": "evaluation/scoring.py (unchanged; scorer of record)",
-        "revised_rules": "evaluation/scoring_audit.py and evaluation/source_relationships.json "
+        "revised_rules": f"evaluation/scoring_audit.py and {_display_path(ds.relationships)} "
         f"({annotations['version']}; {annotations['status']})",
         "original_scores_reproduced": all(r["original_scores_reproduced"] for r in runs),
         "runs": runs,
@@ -726,14 +758,19 @@ def render_markdown(audit: dict) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("runs", nargs="*", type=Path, help="saved run files (default: all)")
-    parser.add_argument("--out", type=Path, default=AUDIT_DIR, help="output folder")
+    parser.add_argument("--dataset", default="benchmark", choices=sorted(DATASETS))
+    parser.add_argument("--out", type=Path, default=None, help="output folder")
     args = parser.parse_args(argv)
-    out = args.out.resolve()
+    ds = DATASETS[args.dataset]
+    out = (args.out or ds.audit).resolve()
     results = RESULTS_DIR.resolve()
     if out == results or results in out.parents:
         parser.error("write the audit outside evaluation/results/, which holds the saved runs")
-    paths = args.runs or default_runs()
-    audit = build_audit(paths)
+    paths = args.runs or default_runs(ds.results)
+    if not paths:
+        print(f"No saved runs for the {args.dataset} dataset in {_display_path(ds.results)}.")
+        return 0
+    audit = build_audit(paths, dataset=args.dataset)
     out.mkdir(parents=True, exist_ok=True)
     (out / "scoring_audit.json").write_text(
         json.dumps(audit, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

@@ -1,0 +1,75 @@
+{
+  "version": "generalization-1.0.0",
+  "status": "Written on 2026-11-15 together with the cases and documents, before any model was run on them. Not yet reviewed by a team member.",
+  "basis": "Each annotation restates its case's criteria in evaluation/generalization/cases.json. Date markers accept month-first and day-first forms. Same schema and rules as evaluation/source_relationships.json; the relationship definitions there apply unchanged.",
+  "relationships": {
+    "unresolved_contradiction": "The sources make incompatible statements about the same thing and nothing in them says which is right. Expected: status conflicting_evidence, with every value reported and none chosen.",
+    "superseded": "A later or current value replaces an earlier one (a revised budget, or a current balance against last year's). Expected: the current value. The earlier value may be mentioned only in a sentence that says it was replaced or earlier. Flagging a conflict is allowed but not required.",
+    "different_context": "The values differ because they describe different dates, scopes or assumptions, and each is right in its own context. Expected: every value with its context marker, such as its 'as of' date. Flagging a conflict is allowed but not required.",
+    "compatible": "The sources agree or add complementary facts. Expected: the combined facts, with no conflict flagged."
+  },
+  "cases": {
+    "GEN-01": {
+      "relationship": "different_context",
+      "values": [["640,000"], ["702,500"]],
+      "context_markers": [
+        ["march 31", "mar. 31", "mar 31", "31 march", "3/31"],
+        ["may 15", "15 may", "5/15"]
+      ],
+      "basis": "criteria: both figures with their 'as of' dates."
+    },
+    "GEN-02": {
+      "relationship": "different_context",
+      "values": [["61,750"], ["86,300"]],
+      "context_markers": [
+        ["december 31", "dec. 31", "dec 31", "31 december", "12/31"],
+        ["february 28", "feb. 28", "feb 28", "28 february", "2/28"]
+      ],
+      "basis": "criteria: both figures with their dates."
+    },
+    "GEN-03": {
+      "relationship": "superseded",
+      "current": ["2.4 million", "2,400,000"],
+      "previous": ["1.9 million", "1,900,000"],
+      "basis": "criteria: current balance; last year's balance only as earlier."
+    },
+    "GEN-04": {
+      "relationship": "superseded",
+      "current": ["3.6 million", "3,600,000"],
+      "previous": ["3.1 million", "3,100,000"],
+      "basis": "criteria: current value; last year's value only as earlier."
+    },
+    "GEN-05": {
+      "relationship": "superseded",
+      "current": ["1,240,000"],
+      "previous": ["1,150,000"],
+      "basis": "criteria: the revised budget; the original only as replaced."
+    },
+    "GEN-06": {
+      "relationship": "superseded",
+      "current": ["3,180,000"],
+      "previous": ["3,050,000"],
+      "basis": "criteria: the amended budget; the June budget only as replaced."
+    },
+    "GEN-07": {
+      "relationship": "compatible",
+      "values": [["4,000", "48,000"]],
+      "basis": "criteria: the figures agree; no conflict reported."
+    },
+    "GEN-08": {
+      "relationship": "compatible",
+      "values": [["2,180,000", "2.18 million"]],
+      "basis": "criteria: the figures agree; no conflict reported."
+    },
+    "GEN-09": {
+      "relationship": "unresolved_contradiction",
+      "values": [["310,000"], ["45,000"]],
+      "basis": "notes: genuine contradiction for the same period."
+    },
+    "GEN-10": {
+      "relationship": "unresolved_contradiction",
+      "values": [["300,000"], ["350,000"]],
+      "basis": "notes: the same grant and award date with two amounts."
+    }
+  }
+}

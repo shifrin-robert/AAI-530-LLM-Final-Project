@@ -27,6 +27,9 @@ KeyMode = Literal["byok", "owner"]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PROMPTS_DIR = PROJECT_ROOT / "prompts"
+# Question-answering prompt versions. v3 is the default since 2026-11-15; v1 and v2 are kept so
+# that earlier evaluation runs can be reproduced and compared (docs/EVALUATION_REPORT.md).
+QA_PROMPT_VERSIONS = ("v1", "v2", "v3")
 FIXTURES_DIR = PROJECT_ROOT / "evaluation" / "fixtures"
 
 API_KEY_ENV_VARS: dict[str, str] = {
@@ -77,7 +80,7 @@ class Settings(BaseModel):
     max_sections: int = 12
 
     # Prompts and conversation
-    qa_prompt_version: str = "v2"
+    qa_prompt_version: str = "v3"
     max_question_chars: int = 2000
     history_turns: int = 3
 
@@ -98,8 +101,8 @@ class Settings(BaseModel):
             problems.append("DOCINTEL_REQUEST_TIMEOUT_S must be positive")
         if self.max_file_mb <= 0 or self.max_documents < 1 or self.max_pages_per_document < 1:
             problems.append("upload limits must be positive")
-        if self.qa_prompt_version not in {"v1", "v2"}:
-            problems.append("DOCINTEL_QA_PROMPT_VERSION must be v1 or v2")
+        if self.qa_prompt_version not in QA_PROMPT_VERSIONS:
+            problems.append("DOCINTEL_QA_PROMPT_VERSION must be v1, v2 or v3")
         if problems:
             raise ValueError("; ".join(problems))
         return self

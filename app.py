@@ -24,7 +24,7 @@ import streamlit as st  # noqa: E402
 
 from docintel import PRODUCT_NAME, __version__  # noqa: E402
 from docintel.comparison import compare_documents  # noqa: E402
-from docintel.config import FIXTURES_DIR, ConfigError, Settings  # noqa: E402
+from docintel.config import FIXTURES_DIR, QA_PROMPT_VERSIONS, ConfigError, Settings  # noqa: E402
 from docintel.credentials import (  # noqa: E402
     HOSTED_PROVIDERS,
     KEY_PAGES,
@@ -102,10 +102,17 @@ QUOTE_BADGES = {
 }
 NATURE_LABELS = {
     "direct_contradiction": ("Contradiction", "red"),
-    "context_difference": ("Explained by context", "blue"),
+    "context_difference": ("Context difference", "blue"),
     "not_a_conflict": ("Not a conflict", "gray"),
-    "unclear": ("Unclear", "orange"),
+    "unclear": ("Unexplained difference", "orange"),
 }
+# The conflict label is the model's own classification. It is shown as such, and never as proof
+# that the documents explain a difference (see docs/EVALUATION_REPORT.md Section 7.4, case CF-01).
+CONFLICT_LABEL_NOTE = (
+    "Labels are the model's classification, not a finding. Check the cited passages: unless they "
+    "say why the values differ, treat the difference as unresolved and confirm it with the "
+    "documents' owner."
+)
 CATEGORY_TITLES = {
     "conflict": "Conflicts",
     "numerical_discrepancy": "Numerical discrepancies",
@@ -483,12 +490,14 @@ def sidebar() -> tuple[Settings, LLMProvider, str | None]:
             )
         key_area = st.container()  # filled once the session's credential is resolved
         with st.expander("Answer settings"):
+            prompt_options = list(reversed(QA_PROMPT_VERSIONS))  # newest first: v3, v2, v1
             prompt_version = st.radio(
                 "Question-answering prompt",
-                ["v2", "v1"],
+                prompt_options,
                 horizontal=True,
-                index=0 if base.qa_prompt_version == "v2" else 1,
-                help="v2 is the revised prompt (default). v1 is the original baseline, kept for comparison.",
+                index=prompt_options.index(base.qa_prompt_version),
+                help="v3 is the default: v2 plus one rule for figures reported as of different dates, "
+                "adopted after the live evaluations. v2 and v1 are kept for comparison.",
             )
             retriever = st.selectbox(
                 "Search method",
@@ -841,13 +850,15 @@ def ask_tab(provider: LLMProvider) -> None:
                     st.html(answer_html(result.output.answer))
                     if result.output.conflicts:
                         for conflict in result.output.conflicts:
-                            nature, _ = NATURE_LABELS.get(conflict.nature, ("Unclear", "orange"))
+                            nature, _ = NATURE_LABELS.get(conflict.nature, NATURE_LABELS["unclear"])
                             st.html(
-                                f"<div class='di-answer'><strong>{html.escape(nature)}:</strong> "
+                                "<div class='di-answer'><strong>Model's label: "
+                                f"{html.escape(nature)}.</strong> "
                                 f"{html.escape(conflict.description)} "
                                 + "".join(chip_html(s) for s in conflict.source_ids)
                                 + "</div>"
                             )
+                        st.caption(CONFLICT_LABEL_NOTE)
                     if result.output.missing_information:
                         st.caption(
                             md(
@@ -1163,6 +1174,8 @@ def compare_tab(provider: LLMProvider) -> None:
                 )
     if not result.output.findings:
         st.caption("No findings were returned.")
+    else:
+        st.caption(CONFLICT_LABEL_NOTE)
     if result.output.limitations:
         st.caption(md("Limitations: " + result.output.limitations))
     st.caption(md(result.coverage.summary_line() + " " + stats_caption(result.stats)))

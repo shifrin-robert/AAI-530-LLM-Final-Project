@@ -3,9 +3,15 @@
 This guide covers setting up the OpenAI API for DocIntel AI, capping what it can spend, and running
 the live evaluation in stages.
 
-**Status (2026-11-14):** the core plan below (Steps 6 and 7a to 7c) was run, for $0.056 computed from
-token counts. The results are in [EVALUATION_REPORT.md](EVALUATION_REPORT.md), Section 5. Not yet run:
-the human review (7d), the proposed prompt v3, and the other models.
+**Status:** costs below are computed from token counts.
+
+* **2026-11-14:** the core plan below (Steps 6 and 7a to 7c) was run for $0.056.
+* **2026-11-15:** the prompt v3 test was run for $0.032, and the generalization set for v2 and v3
+  for $0.011. v3 then became the default prompt.
+* **Results:** in [EVALUATION_REPORT.md](EVALUATION_REPORT.md), Sections 5, 7.3 and 7.5.
+* **Not yet run:** the human review (7d) and the other models.
+* **Prompt versions in the commands:** every command below passes `--prompt-version` explicitly,
+  so each earlier run can be reproduced exactly. Without the flag, the runner uses v3.
 
 OpenAI dashboard labels below come from OpenAI's documentation, checked on 2026-11-14 (sources at
 the end). Screens change; if a label differs, look for the closest match.
@@ -125,7 +131,7 @@ git check-ignore -v .env
 
 It should print the rule that ignores the file (`.gitignore:2:.env`), and `git status` must not list
 `.env`. The test suite stays offline with the key present: `python -m pytest` should still report
-285 passed.
+307 passed.
 
 ## Step 6. Dry run (free)
 
@@ -192,15 +198,23 @@ Re-score the saved runs with the original and the proposed revised rules. The au
 python -m evaluation.scoring_audit
 ```
 
-### Optional: proposed prompt v3
+### Prompt v3 test (run on 2026-11-15)
 
 Prompt v3 adds one rule for figures reported as of different dates (case CF-02). It is not the
-default and the app does not offer it. Test it against the v2 repeats only after spending is
-authorized. The conservative estimate is $0.162:
+default and the app does not offer it. It was run with this command, under a separate $0.50
+authorization; the conservative estimate was $0.162 and it cost $0.032:
 
 ```bash
-python -m evaluation.evaluation_runner --provider openai --prompt-version v3 --repeats 3 --allow-paid --max-cost-usd 0.2 --tag live-v3-x3
+python -m evaluation.evaluation_runner --provider openai --prompt-version v3 --repeats 3 --allow-paid --max-cost-usd 0.5 --tag live-v3-x3
 ```
+
+### Generalization set (run on 2026-11-15)
+
+These are 10 new cases, separate from the benchmark, that test whether v3's rule generalizes. v2
+and v3 were each run on them three times. The conservative estimate was $0.081 and the actual cost
+$0.011. v2 passed 26 of 30 case runs and v3 passed 30 of 30. The commands, the criteria fixed in
+advance and the results are in `evaluation/generalization/README.md`. Results are in
+`evaluation/results/generalization/`.
 
 ### Optional model benchmark
 

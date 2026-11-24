@@ -2,7 +2,7 @@
 id: grounded_qa
 version: v2
 task: qa
-status: default
+status: previous default (replaced by v3 on 2026-11-15; kept to reproduce and compare earlier runs)
 created: 2026-11-13
 revision_of: v1 (reasons are recorded in docs/PROMPT_AND_TESTING_APPENDIX.md)
 ---

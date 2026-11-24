@@ -2,7 +2,7 @@
 id: grounded_qa
 version: v3
 task: qa
-status: proposed (not yet evaluated with a live model; v2 remains the default and v3 is not offered in the app)
+status: default (adopted 2026-11-15 after the benchmark run 20261115T053139Z_openai_gpt-6-luna_v3_live-v3-x3 and the generalization run 20261115T060343Z_openai_gpt-6-luna_v3_gen-v3-x3; see docs/EVALUATION_REPORT.md Section 7)
 created: 2026-11-14
 revision_of: v2 (adds one bullet to section 7 for figures reported as of different dates; reasons in docs/PROMPT_AND_TESTING_APPENDIX.md)
 ---

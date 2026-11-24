@@ -63,8 +63,12 @@ or public deployment: every visitor would spend your credit.
    * **Answered from your documents** / **Partly answered**
    * **Not found in your documents**: the documents do not contain it; DocIntel does not guess.
    * **Sources disagree**: each version is shown with its source; DocIntel does not pick a winner.
-     A note says whether it looks like a real contradiction or a difference explained by context
-     (dates, versions, amendments).
+     Each difference carries a **Model's label**: *Contradiction*, *Context difference* (different
+     dates, versions or amendments) or *Unexplained difference*.
+     * **The label is the model's classification, not a finding.** Check the cited passages.
+     * **When the documents don't say why the values differ,** treat the difference as unresolved and
+       ask whoever owns the documents. The planned go-live date in the sample catalog documents is
+       one example.
 4. Check the **Evidence** panel on the right:
    * Chips like **S2** in the answer match the source cards.
    * The quoted words are highlighted in yellow inside each passage.
@@ -97,8 +101,9 @@ result as JSON.
 
 Choose two to four documents and, optionally, a focus. Findings are grouped into conflicts, numerical
 discrepancies, important changes, obligation and deadline differences, other differences, content
-found in only one document, and similarities. Each finding cites its sources; conflicts are labelled
-"Contradiction", "Explained by context" or "Unclear".
+found in only one document, and similarities. Each finding cites its sources. Differences carry the
+model's label, "Contradiction", "Context difference" or "Unexplained difference". Like the labels on
+answers, these are the model's classification, so check the cited pages.
 
 ## 7. Evaluation and About tabs
 
@@ -110,8 +115,10 @@ found in only one document, and similarities. Each finding cites its sources; co
 
 * **Model provider / Model**: OpenAI, Anthropic, Google Gemini or Offline demo. Hosted providers
   need your API key (section 1a); the model list shows prices per million tokens.
-* **Answer settings**: prompt version (v2 default, v1 baseline for comparison), search method (hybrid
-  default, keyword BM25, character n-grams) and passages per answer.
+* **Answer settings**: prompt version, search method and passages per answer.
+  * **Prompt version:** v3 is the default. v2 and v1 are kept for comparison. A server setting
+    `DOCINTEL_QA_PROMPT_VERSION` changes which one is preselected.
+  * **Search method:** hybrid (default), keyword BM25 or character n-grams.
 * **Clear session** removes all documents, answers, ratings and API keys from this browser session.
 
 ## 9. Privacy

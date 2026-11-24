@@ -10,7 +10,9 @@ import sys
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from tests.conftest import MSA, ROOT, SCANNED
+from docintel.llm_client import ScriptedProvider
+from docintel.qa import answer_question
+from tests.conftest import MEMO, MSA, ROOT, SCANNED, STATUS
 
 APP = str(ROOT / "app.py")
 TIMEOUT = 60
@@ -252,3 +254,79 @@ def test_session_keys_are_refused_when_the_server_sets_unsafe_sdk_variables(
     at = enter_key(run_app(), USER_KEY)
     assert session_provider(at).is_offline
     assert "OPENAI_CUSTOM_HEADERS" in all_text(at) and USER_KEY not in everything_shown(at)
+
+
+# ------------------------------------------------------------------ prompt version and conflict labels
+
+
+def prompt_selector(at: AppTest):
+    return next(r for r in at.radio if r.label == "Question-answering prompt")
+
+
+def test_prompt_selector_defaults_to_v3_and_keeps_v1_and_v2(offline_env):
+    at = run_app()
+    assert prompt_selector(at).options == ["v3", "v2", "v1"]
+    assert prompt_selector(at).value == "v3"
+    button(at, "Load sample documents").click().run()
+    question = "What is the monthly service fee in the master services agreement?"
+    at.chat_input[0].set_value(question).run()
+    assert at.session_state.messages[-1]["result"].prompt_label == "grounded_qa@v3"
+    for version in ("v2", "v1"):
+        prompt_selector(at).set_value(version).run()
+        at.chat_input[0].set_value(question).run()
+        assert not at.exception
+        assert at.session_state.messages[-1]["result"].prompt_label == f"grounded_qa@{version}"
+
+
+def test_an_explicit_prompt_setting_is_still_honoured(offline_env, monkeypatch):
+    monkeypatch.setenv("DOCINTEL_QA_PROMPT_VERSION", "v2")
+    assert prompt_selector(run_app()).value == "v2"
+
+
+def test_conflict_labels_are_shown_as_the_models_reading(offline_env, workspace_with):
+    """CF-01: a "context difference" label must not read as proof that the gap is explained."""
+    ws = workspace_with(STATUS, MEMO)
+    question = "What is the planned go-live date for the catalog project?"
+    empty = {
+        "status": "insufficient_evidence",
+        "answer": "-",
+        "claims": [],
+        "conflicts": [],
+        "missing_information": [],
+        "confidence": "low",
+    }
+    probe = answer_question(ws, ScriptedProvider([empty]), question)
+
+    def source_with(text):
+        return next(p.source_id for p in probe.sources if text in p.text)
+
+    status_id = source_with("go-live date remains November 17, 2026")
+    memo_id = source_with("assumes go-live on December 1, 2026")
+    answer = {
+        "status": "conflicting_evidence",
+        "answer": f"The status report gives November 17, 2026 [{status_id}]. The finance memo's "
+        f"schedule assumes December 1, 2026 [{memo_id}].",
+        "claims": [],
+        "conflicts": [
+            {
+                "description": "The documents give different go-live dates.",
+                "nature": "context_difference",
+                "source_ids": [status_id, memo_id],
+            }
+        ],
+        "missing_information": [],
+        "confidence": "medium",
+    }
+    result = answer_question(ws, ScriptedProvider([answer]), question)
+    at = AppTest.from_file(APP, default_timeout=TIMEOUT)
+    at.session_state["messages"] = [
+        {"id": 1, "question": question, "result": result, "error": None}
+    ]
+    at.session_state["turn_counter"] = 1
+    at.run()
+    assert not at.exception
+    rendered = " ".join(e.proto.body for e in at.get("html"))
+    assert "Model's label: Context difference." in rendered
+    assert "November 17, 2026" in rendered and "December 1, 2026" in rendered
+    assert "Explained by context" not in rendered
+    assert "Labels are the model's classification" in all_text(at)

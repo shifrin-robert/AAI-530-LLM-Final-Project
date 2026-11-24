@@ -50,7 +50,7 @@ def test_server_settings_prefer_real_environment_over_dotenv(monkeypatch):
 def test_defaults_are_valid():
     s = Settings()
     assert s.provider == "openai" and s.resolved_model == "gpt-6-luna"
-    assert s.retriever == "hybrid" and s.qa_prompt_version == "v2"
+    assert s.retriever == "hybrid" and s.qa_prompt_version == "v3"
 
 
 def test_settings_from_env_parses_and_validates():
